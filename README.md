@@ -1,16 +1,65 @@
-# React + Vite
+# Getting Started
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This guide walks through cloning the repo, creating a branch, making changes, and pushing them to GitHub.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Clone the Repository
 
-## React Compiler
+```bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+```
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Create a New Branch
 
-## Expanding the ESLint configuration
+Create a Branch on GitHub (Web UI)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Go to the repository on GitHub
+2. Click the branch dropdown
+3. Type a new branch name
+4. Click Create branch
+
+Fetch the branch locally and switch to it:
+
+    git fetch
+    git checkout your-branch-name
+
+---
+
+## Make Changes
+
+Open the project in your code editor and make the necessary changes.
+
+---
+
+## Stage Changes
+
+Add your changes to the staging area:
+
+    git add .
+
+---
+
+## Commit Changes
+
+Commit your changes with a descriptive message:
+
+    git commit -m "Describe your changes"
+
+---
+
+## Push Changes to GitHub
+
+Push your branch and commits to the remote repository:
+
+    git push
+
+---
+
+## Open a Pull Request
+
+1. Go to the repository on GitHub
+2. Click Compare & pull request
+3. Add a clear title and description
+4. Submit the pull request
