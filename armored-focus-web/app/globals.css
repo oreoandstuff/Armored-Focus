@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --hubBackground: linear-gradient(180deg, #143278 0%, #050814 100%);
+  --hubColor: #143278;
+  --hubBorder: #6694ff;
+
+  --questBackground: linear-gradient(180deg, #144d36 0%, #05120b 100%);
+  --questColor: #2a4a3f;
+  --questBorder: #6abfa3;
+
+  --binderBackground: linear-gradient(180deg, #752a4a 0%, #2e0b36 100%);
+  --binderColor: #752a4a;
+  --binderBorder: #c85d8d;
+
+  --rulesBackground: linear-gradient(180deg, #362622 0%, #241713 100%);
+  --rulesColor: #362622;
+  --rulesBorder: #9e8174;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* --background: #0a0a0a;
+    --foreground: #ededed; */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-serif), serif;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: 100vw;
+  height: 100vh;
+}
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  width: 100%;
+  padding: 2rem;
+}
