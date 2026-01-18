@@ -1,10 +1,11 @@
 import AuthorizedPage from "../ReusableUI/AuthorizedPage";
+import { StandardCard } from "../ReusableUI/Cards/StandardCard/StandardCard";
 import "./Rules.css";
 
 export default function Rules() {
   return (
     <AuthorizedPage className="rules-page">
-      <h1>Rules</h1>
+      <StandardCard className="rules-card-color ">Rules</StandardCard>
     </AuthorizedPage>
   );
 }
