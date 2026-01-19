@@ -1,17 +1,41 @@
 import AuthorizedPage from "../ReusableUI/AuthorizedPage";
+import StandardButton from "../ReusableUI/Buttons/StandardButton";
 import LevelCard from "../ReusableUI/Cards/LevelCard/LevelCard";
+import CoinsIcon from "../ReusableUI/Icons/CoinsIcon";
+import SIcon from "../ReusableUI/Icons/SIcon";
+import StackIcon from "../ReusableUI/Icons/StackIcon";
 import "./Hub.css";
 
 export default function Hub() {
   return (
     <AuthorizedPage className="hub-page">
       <div className="hub-container">
-        <LevelCard
-          playerName="Drew Leui"
-          level={5}
-          currentExp={1250}
-          nextLevelExp={2000}
-        />
+        <div className="side-cards">
+          <LevelCard
+            playerName="Drew Leui"
+            level={5}
+            currentExp={1250}
+            nextLevelExp={2000}
+          />
+
+          <StandardButton
+            variant="green"
+            label="Start Card Quest"
+            icon={<CoinsIcon />}
+          />
+
+          <StandardButton
+            variant="purple"
+            label="Start Standalone Quest"
+            icon={<SIcon />}
+          />
+
+          <StandardButton
+            variant="gold"
+            label="Draw New Card"
+            icon={<StackIcon />}
+          />
+        </div>
       </div>
     </AuthorizedPage>
   );
