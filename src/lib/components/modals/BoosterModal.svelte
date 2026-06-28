@@ -67,8 +67,9 @@
 			</div>
 
 			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<label class="mb-1 block text-sm font-bold">Paste rows (one card per line, comma-separated)</label>
+				<label for="booster-raw" class="mb-1 block text-sm font-bold">Paste rows (one card per line, comma-separated)</label>
 				<textarea
+					id="booster-raw"
 					rows="5"
 					class="w-full rounded border px-2 py-1 font-mono text-sm"
 					style={inputStyle}
@@ -76,8 +77,9 @@
 					bind:value={rawText}
 				></textarea>
 
-				<label class="mb-1 mt-4 block text-sm font-bold">Number of columns</label>
+				<label for="booster-cols" class="mb-1 mt-4 block text-sm font-bold">Number of columns</label>
 				<input
+					id="booster-cols"
 					type="number"
 					min="1"
 					max="20"

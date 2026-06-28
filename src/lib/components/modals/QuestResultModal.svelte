@@ -94,15 +94,15 @@
 					</p>
 				{/if}
 
-				<label class="mb-1 block text-sm font-bold">Completion Type</label>
-				<select class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={completionTypeId}>
+				<label for="quest-completion-type" class="mb-1 block text-sm font-bold">Completion Type</label>
+				<select id="quest-completion-type" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={completionTypeId}>
 					{#each completionTypes as ct (ct.id)}
 						<option value={ct.id}>{ct.name} (+{ct.bonusPercent}%)</option>
 					{/each}
 				</select>
 
-				<label class="mb-1 block text-sm font-bold">Commission ($)</label>
-				<input type="number" min="0" class="mb-4 w-full rounded border px-2 py-1 font-mono" style={inputStyle} bind:value={commission} />
+				<label for="quest-commission" class="mb-1 block text-sm font-bold">Commission ($)</label>
+				<input id="quest-commission" type="number" min="0" class="mb-4 w-full rounded border px-2 py-1 font-mono" style={inputStyle} bind:value={commission} />
 
 				{#if isContinue}
 					<label class="mb-3 flex items-center gap-2 text-sm font-bold">
@@ -111,22 +111,22 @@
 					</label>
 
 					{#if isCooldown}
-						<label class="mb-1 block text-sm font-bold">Cooldown Due Date</label>
-						<input type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={cooldownDueDate} />
+						<label for="quest-cooldown-due" class="mb-1 block text-sm font-bold">Cooldown Due Date</label>
+						<input id="quest-cooldown-due" type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={cooldownDueDate} />
 					{:else}
-						<label class="mb-1 block text-sm font-bold">Next Quest Type</label>
-						<select class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={nextTypeId}>
+						<label for="quest-next-type" class="mb-1 block text-sm font-bold">Next Quest Type</label>
+						<select id="quest-next-type" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={nextTypeId}>
 							{#each cardQuestTypes as q (q.id)}
 								<option value={q.id}>{q.name} ({q.exp} XP)</option>
 							{/each}
 						</select>
-						<label class="mb-1 block text-sm font-bold">Next Due Date</label>
-						<input type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={nextDueDate} />
+						<label for="quest-next-due" class="mb-1 block text-sm font-bold">Next Due Date</label>
+						<input id="quest-next-due" type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={nextDueDate} />
 					{/if}
 				{/if}
 
-				<label class="mb-1 block text-sm font-bold">Note</label>
-				<textarea rows="3" class="w-full rounded border px-2 py-1" style={inputStyle} bind:value={note}></textarea>
+				<label for="quest-note" class="mb-1 block text-sm font-bold">Note</label>
+				<textarea id="quest-note" rows="3" class="w-full rounded border px-2 py-1" style={inputStyle} bind:value={note}></textarea>
 			</div>
 
 			<div class="flex justify-end gap-2 border-t px-5 py-3" style="border-color: {THEME.border};">

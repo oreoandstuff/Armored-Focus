@@ -65,20 +65,20 @@
 			</div>
 
 			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<label class="mb-1 block text-sm font-bold">Quest Type</label>
-				<select class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={typeId}>
+				<label for="start-type" class="mb-1 block text-sm font-bold">Quest Type</label>
+				<select id="start-type" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={typeId}>
 					{#each questTypes as q (q.id)}
 						<option value={q.id}>{q.name} ({q.exp} XP)</option>
 					{/each}
 				</select>
 
-				<label class="mb-1 block text-sm font-bold">Due Date</label>
-				<input type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={dueDate} />
+				<label for="start-due" class="mb-1 block text-sm font-bold">Due Date</label>
+				<input id="start-due" type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={dueDate} />
 
-				<label class="mb-1 block text-sm font-bold">
+				<label for="start-note" class="mb-1 block text-sm font-bold">
 					Note{#if app.flowStandalone}<span class="text-red-700"> (required)</span>{/if}
 				</label>
-				<textarea rows="3" class="w-full rounded border px-2 py-1" style={inputStyle} bind:value={note}></textarea>
+				<textarea id="start-note" rows="3" class="w-full rounded border px-2 py-1" style={inputStyle} bind:value={note}></textarea>
 				{#if noteMissing}
 					<p class="mt-1 text-sm italic text-red-700">A note is required for standalone tasks.</p>
 				{/if}

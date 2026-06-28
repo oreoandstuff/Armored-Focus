@@ -3,6 +3,7 @@
 	// Collapsed = compact 12-col row; expanded = full editable card with quest
 	// actions. All persistence/mutations go through the `app` store; the only
 	// prop is the card itself.
+	import { untrack } from 'svelte';
 	import { app } from '$lib/state.svelte';
 	import type { Card, SideKey, Quest } from '$lib/core/types';
 	import { getCardColors, METALLIC_FONT } from '$lib/theme';
@@ -34,9 +35,10 @@
 	let { card }: { card: Card } = $props();
 
 	// ---- local UI state ----
-	let visibleFace = $state<'Client' | 'Business'>(
+	const initialFace: 'Client' | 'Business' = untrack(() =>
 		card.primarySide === 'Business' ? 'Business' : 'Client'
 	);
+	let visibleFace = $state<'Client' | 'Business'>(initialFace);
 	let isEditing = $state(false);
 	let editData = $state<Card | null>(null);
 	let questTab = $state(0);

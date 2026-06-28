@@ -57,11 +57,11 @@
 					Merging into <span class="font-serif font-bold">{target?.name ?? 'this card'}</span>.
 				</p>
 
-				<label class="mb-1 block text-sm font-bold">Card to merge in (source)</label>
+				<label for="merge-source" class="mb-1 block text-sm font-bold">Card to merge in (source)</label>
 				{#if candidates.length === 0}
 					<p class="text-sm italic opacity-70">No other cards available to merge.</p>
 				{:else}
-					<select class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={sourceId}>
+					<select id="merge-source" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={sourceId}>
 						<option value="" disabled>Select a card…</option>
 						{#each candidates as c (c.id)}
 							<option value={c.id}>{c.name} ({c.primarySide})</option>
