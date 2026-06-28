@@ -6,8 +6,10 @@
 	import type { RulesKey } from '$lib/core/types';
 
 	// A rule row always has id + name; the numeric field varies by rule type
-	// (value | exp | bonusPercent | reward | required) — selected via `valueField`.
-	type RuleRow = { id: string; name: string; [key: string]: unknown };
+	// (value | exp | bonusPercent | reward | required) — read dynamically via
+	// `valueField`. No index signature here so the concrete domain rule types
+	// (NamedValue, QuestTypeRule, …) are assignable to this prop.
+	type RuleRow = { id: string; name: string };
 
 	let {
 		title,
@@ -32,7 +34,7 @@
 	} = $props();
 
 	function numValue(r: RuleRow): number {
-		const v = r[valueField];
+		const v = (r as Record<string, unknown>)[valueField];
 		return typeof v === 'number' ? v : Number(v) || 0;
 	}
 </script>
