@@ -19,6 +19,7 @@ export interface LogEntry {
 	clientName: string;
 	questType: string;
 	exp: number;
+	commission?: number; // tracked separately so Exp-Earned vs Commission-Earned sorts differ (SPEC §9 #10)
 	date: string; // ISO
 	note?: string;
 }
