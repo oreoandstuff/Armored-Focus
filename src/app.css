@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		color-scheme: light;
+	}
+	body {
+		@apply font-sans;
+	}
+}
+
+@layer components {
+	/* Shared metallic surface used by RPG buttons/panels (SPEC §7). */
+	.metallic {
+		@apply shadow-metallic font-serif font-bold tracking-wide;
+	}
+}

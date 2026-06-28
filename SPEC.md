@@ -16,9 +16,10 @@ same and handle the same" without referencing the old code.
 |---|---|---|
 | Screens, components, RPG theme, visuals | Fully present | **Reproduce faithfully** |
 | Game rules / XP / quests / multipliers | Present (some bugs) | **Reproduce as functional core + unit tests**; fix the clear bugs in §9 deliberately |
-| Persistence | **None** (state lost on refresh) | **New** — Cloudflare D1 (SQL) |
-| Auth / accounts | **None** (just an editable name) | **New** — multi-user with login (session-based) |
+| Persistence | **None** (state lost on refresh) | **New** — Cloudflare D1 (SQL), single-user |
+| Auth / accounts | **None** (just an editable name) | **Deferred** — no login for now; schema keeps a `user` row so auth can be added later without migration |
 | Level-up trigger | **Missing** (exp accrues, level never increments) | **New/fixed** — implement real level-up |
+| Currency / coins | Iconography only, no system | **Exp-only** (match prototype) — no coins in v1 |
 
 ---
 
@@ -235,7 +236,7 @@ Farmers First, Life First, Exp Earned, Commission Earned]`. (Exp/Commission Earn
 
 ### 4.11 Coins / Currency
 Iconography present but **no currency system implemented**. Commission feeds Exp only.
-**Decision needed:** implement coins, or keep Exp-only? (See open questions, §10.)
+**Decision: Exp-only for v1** — no coins. Commission contributes Exp (1 Exp/$) as in §4.3.
 
 ---
 
@@ -265,14 +266,15 @@ Iconography present but **no currency system implemented**. Commission feeds Exp
 
 ---
 
-## 6. Auth / Account  ← NEW
+## 6. Auth / Account  ← DEFERRED
 
-Prototype has **no auth** — only an editable `userStats.name` ("Drew Leui"). The rewrite adds:
-- Multi-user accounts with login (session-based auth on Cloudflare Workers + D1).
-- All cards / quests / rules / stats scoped per user.
-- An Account screen (profile, name, logout).
+**Decision:** no login/auth in v1. The app behaves as a single user (the editable
+`userStats.name`, default "Drew Leui").
 
-(Auth approach detail in §10.)
+To avoid a painful migration when auth is added later, the D1 schema still includes a
+`user` table and every owned row (cards, quests, rules, stats, log) carries a `user_id`
+foreign key. v1 seeds and uses a single default user row. Adding login later = add a
+sessions table + login routes + scope queries to the session user; no data reshape needed.
 
 ---
 
@@ -351,15 +353,14 @@ modals `fixed inset bg-black/60 backdrop-blur z-[100]`, rounded panels with 2–
 
 ---
 
-## 10. Open Questions for the Rewrite
+## 10. Decisions (resolved)
 
-1. **Coins/currency:** implement a real currency (earn/spend) or stay Exp-only like the prototype?
-2. **Auth provider:** hand-rolled session auth in D1, a library (e.g. Lucia-style), or Cloudflare Access?
-3. **Multi-user model:** fully isolated per-user data only, or any shared/team concept later?
-4. **Level-up rewards:** should universal rewards ("Full Health Restore", "+5 Relationship Cap")
-   have real mechanical effects, or stay cosmetic?
-5. **Scope of v1:** ship faithful single-user-feeling experience first (with auth), or build the
-   full multi-user surface (account management, etc.) up front?
+1. **Coins/currency:** ✅ Exp-only for v1. No coins.
+2. **Auth:** ✅ Deferred — no login in v1; schema is auth-ready (§6).
+3. **Persistence:** ✅ Cloudflare D1, single default user.
+4. **Scope:** ✅ Full app — reproduce everything the current version had (all 4 screens, cards,
+   quests, rules editor, booster import, scroll log, bonus board), fixing the §9 bugs.
+5. **Level-up rewards:** universal rewards stay cosmetic/display for now (can gain effects later).
 
 ---
 

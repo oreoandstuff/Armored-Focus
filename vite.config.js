@@ -1,7 +1,11 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+	plugins: [sveltekit()],
+	test: {
+		// Functional-core tests are pure Node; component tests can opt into jsdom later.
+		include: ['src/**/*.{test,spec}.{js,ts}'],
+		environment: 'node'
+	}
+});
