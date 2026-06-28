@@ -87,6 +87,7 @@ class AppStore {
 	flowSide = $state<SideKey>('clientSide');
 	flowQuestId = $state<string | null>(null);
 	flowStandalone = $state(false);
+	flowAction = $state<'Complete' | 'Continue'>('Complete');
 
 	private initialized = false;
 
@@ -113,6 +114,33 @@ class AppStore {
 	}
 	toggleCard(id: string) {
 		this.expandedCardId = this.expandedCardId === id ? null : id;
+	}
+
+	// ---- flow openers (set context, then open the relevant modal) ----
+	/** Open the Start Quest modal for a card side. */
+	openStartQuest(cardId: string, side: SideKey) {
+		this.flowCardId = cardId;
+		this.flowSide = side;
+		this.flowStandalone = false;
+		this.openModal('startQuest');
+	}
+	/** Open the Start Quest modal in standalone-task mode. */
+	openStandaloneQuest() {
+		this.flowStandalone = true;
+		this.openModal('startQuest');
+	}
+	/** Open the Quest Result modal to Complete or Continue a quest. */
+	openQuestResult(cardId: string, side: SideKey, questId: string, action: 'Complete' | 'Continue') {
+		this.flowCardId = cardId;
+		this.flowSide = side;
+		this.flowQuestId = questId;
+		this.flowAction = action;
+		this.openModal('questResult');
+	}
+	/** Open the Merge modal with `cardId` as the merge target. */
+	openMerge(cardId: string) {
+		this.flowCardId = cardId;
+		this.openModal('mergeCard');
 	}
 
 	// ---- helpers ----
