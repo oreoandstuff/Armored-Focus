@@ -26,7 +26,7 @@
 
 <!-- QUEST SCREEN -->
 <div class="relative h-full w-full">
-	<div class="absolute left-0 top-0 w-1/4 h-full z-10 p-4 flex flex-col gap-4">
+	<div class="absolute left-0 top-0 w-1/4 h-full z-10 p-6 pt-8 flex flex-col gap-5">
 		<div class="relative">
 			<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-900" size={18} />
 			<input
