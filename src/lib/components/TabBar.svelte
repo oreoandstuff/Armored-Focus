@@ -29,7 +29,7 @@
 				case 'Binder':
 					return 'text-pink-100 bg-pink-800 border-2 border-pink-600 border-b-0 -mb-[4px] pb-1 rounded-t-lg shadow-[0_-5px_15px_rgba(236,72,153,0.4)] z-20';
 				default: // Rules
-					return 'text-[#3e2723] bg-[#d7ccc8] border-[#5d4037] -mt-2 rounded-t-xl font-serif italic tracking-wider border-x-4 border-t-4 z-10';
+					return 'text-[#3e2723] bg-[#d7ccc8] border-2 border-[#5d4037] border-b-0 -mb-[4px] pb-1 rounded-t-xl font-serif italic tracking-wider z-10';
 			}
 		}
 		switch (tab) {
