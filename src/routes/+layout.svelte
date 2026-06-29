@@ -20,23 +20,20 @@
 
 	// The URL is the source of truth for the active view.
 	const view = $derived((page.url.pathname.split('/')[1] || 'hub') as View);
-
-	const bg = $derived(
-		view === 'hub'
-			? 'bg-gradient-to-b from-blue-800 to-slate-900'
-			: view === 'quests'
-				? 'bg-gradient-to-b from-emerald-900 via-[#5d534a] to-[#3e3730]'
-				: view === 'binder'
-					? 'bg-gradient-to-b from-pink-900 to-purple-950'
-					: 'bg-[#e8e4d9]'
-	);
 </script>
 
-<div class="flex h-screen flex-col font-sans">
+<div class="app-shell">
 	<TabBar active={view} onSelect={(v) => app.setView(v)} />
 
-	<div class="flex-1 w-full relative overflow-hidden {bg}">
-		<div class="h-full w-full {view === 'quests' ? '' : 'p-6 max-w-7xl mx-auto overflow-y-auto'}">
+	<div
+		class="view-bg"
+		class:hub={view === 'hub'}
+		class:quests={view === 'quests'}
+		class:binder={view === 'binder'}
+		class:rules={view === 'rules'}
+	>
+		<!-- Quests is full-bleed; the other views get the centered, padded container. -->
+		<div class="view-container" class:padded={view !== 'quests'}>
 			{@render children()}
 		</div>
 	</div>
@@ -49,3 +46,30 @@
 	<QuestResultModal />
 	<MergeCardModal />
 </div>
+
+<style>
+	.app-shell {
+		@apply flex h-screen flex-col font-sans;
+	}
+	.view-bg {
+		@apply relative w-full flex-1 overflow-hidden;
+	}
+	.view-bg.hub {
+		@apply bg-gradient-to-b from-blue-800 to-slate-900;
+	}
+	.view-bg.quests {
+		@apply bg-gradient-to-b from-emerald-900 via-[#5d534a] to-[#3e3730];
+	}
+	.view-bg.binder {
+		@apply bg-gradient-to-b from-pink-900 to-purple-950;
+	}
+	.view-bg.rules {
+		@apply bg-[#e8e4d9];
+	}
+	.view-container {
+		@apply h-full w-full;
+	}
+	.view-container.padded {
+		@apply mx-auto max-w-7xl overflow-y-auto p-6;
+	}
+</style>

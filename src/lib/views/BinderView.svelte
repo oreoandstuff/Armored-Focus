@@ -6,7 +6,6 @@
 	// pink→purple background and the `p-6 max-w-7xl mx-auto` container, so this
 	// view renders only the inner content. All state lives in the `app` store.
 	import { app } from '$lib/state.svelte';
-	import { METALLIC_SHADOW, METALLIC_FONT } from '$lib/theme';
 	import { SORT_OPTIONS } from '$lib/core/rules';
 	import { searchCards, sortCards } from '$lib/core/sorting';
 	import ClientCard from '$lib/components/ClientCard.svelte';
@@ -20,33 +19,27 @@
 </script>
 
 <div>
-	<div class="flex justify-between items-end mb-6 border-b-4 border-purple-900/30 pb-4">
-		<div class="flex items-center gap-4">
-			<div class="flex flex-col gap-2 border-r-4 border-stone-400 pr-4 bg-[#4c1d95] p-2 rounded-l-lg">
+	<div class="binder-head">
+		<div class="head-left">
+			<div class="spine">
 				{#each [0, 1, 2] as i (i)}
-					<div class="w-4 h-4 rounded-full bg-gradient-to-b from-stone-300 via-white to-stone-400 shadow-sm border border-stone-500"></div>
+					<div class="ring"></div>
 				{/each}
 			</div>
 			<div>
-				<h2 class="text-4xl font-serif font-bold text-purple-100 drop-shadow-md">The Binder</h2>
-				<p class="text-purple-200/80 italic">Repository of Known Associates</p>
+				<h2 class="title">The Binder</h2>
+				<p class="subtitle">Repository of Known Associates</p>
 			</div>
 		</div>
-		<div class="flex gap-2">
-			<button
-				onclick={() => app.openModal('boosterPack')}
-				class="group flex items-center px-4 py-2 rounded-xl bg-gradient-to-b from-pink-400 via-pink-600 to-pink-800 text-white border-4 border-pink-900 hover:brightness-110 active:scale-95 transition-all {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
-				<div class="p-1 bg-pink-950 rounded-full border border-pink-400 group-hover:scale-110 transition-transform mr-2 shadow-inner">
+		<div class="head-actions">
+			<button class="btn-booster" onclick={() => app.openModal('boosterPack')}>
+				<div class="badge booster">
 					<Upload size={14} />
 				</div>
 				Add Booster Pack
 			</button>
-			<button
-				onclick={() => app.openModal('drawCard')}
-				class="group flex items-center px-4 py-2 rounded-xl bg-gradient-to-b from-[#faeebf] via-[#eebb4d] to-[#aa7e22] text-[#3e2723] border-4 border-[#5c3a1e] hover:brightness-110 active:scale-95 transition-all {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
-				<div class="p-1 bg-[#5c3a1e] rounded-full border border-[#faeebf] group-hover:scale-110 transition-transform mr-2 text-[#faeebf] shadow-inner">
+			<button class="btn-draw" onclick={() => app.openModal('drawCard')}>
+				<div class="badge draw">
 					<Layers size={14} />
 				</div>
 				Draw New Card
@@ -54,38 +47,33 @@
 		</div>
 	</div>
 
-	<div class="mb-6 flex gap-4 bg-purple-900/30 p-4 rounded-xl border-2 border-purple-500/30 backdrop-blur-sm items-center">
-		<div class="relative flex-1">
-			<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+	<div class="search-bar">
+		<div class="search">
+			<Search class="search-icon" size={18} />
 			<input
-				class="w-full pl-10 pr-4 py-2 bg-white border border-stone-300 rounded focus:outline-none focus:border-purple-500 text-stone-900 placeholder-stone-400"
+				class="search-input"
 				placeholder="Search by Name, Phone, Address..."
 				bind:value={app.search}
 			/>
 		</div>
-		<div class="relative">
-			<button
-				onclick={() => (isSortMenuOpen = !isSortMenuOpen)}
-				class="flex items-center gap-2 bg-gradient-to-b from-orange-400 via-orange-600 to-red-700 text-white border-4 border-red-900 px-3 py-2 rounded-xl hover:brightness-110 transition-all shadow-sm {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
+		<div class="sort">
+			<button class="sort-btn" onclick={() => (isSortMenuOpen = !isSortMenuOpen)}>
 				<List size={14} /> Organize By: {app.sort}
 			</button>
 			{#if isSortMenuOpen}
-				<div class="absolute right-0 top-full mt-2 w-64 bg-[#fdfbf7] border-2 border-[#d4c5a9] rounded-lg shadow-xl z-50 overflow-hidden">
+				<div class="sort-menu">
 					{#each SORT_OPTIONS as opt (opt)}
 						<button
+							class="sort-option"
+							class:active={app.sort === opt}
 							onclick={() => {
 								app.sort = opt;
 								isSortMenuOpen = false;
 							}}
-							class="w-full text-left px-4 py-2 hover:bg-[#e8e4d9] text-[#2c241b] text-sm font-serif font-bold border-b border-stone-100 last:border-0 flex justify-between items-center {app.sort ===
-							opt
-								? 'bg-[#e8e4d9] text-[#8b4513]'
-								: ''}"
 						>
 							{opt}
 							{#if app.sort === opt}
-								<CheckCircle size={12} class="text-emerald-600" />
+								<CheckCircle size={12} class="check-icon" />
 							{/if}
 						</button>
 					{/each}
@@ -94,16 +82,121 @@
 		</div>
 	</div>
 
-	<div class="space-y-2">
+	<div class="card-list">
 		{#each shown as card (card.id)}
 			<ClientCard {card} />
 		{/each}
 		{#if binderCards.length === 0}
-			<div class="text-center py-12 opacity-50 text-purple-200">
-				<Book size={64} class="mx-auto mb-4 opacity-80" />
-				<h3 class="text-xl font-bold">Binder Empty</h3>
+			<div class="empty">
+				<Book size={64} class="empty-icon" />
+				<h3 class="empty-title">Binder Empty</h3>
 				<p>No cards collected yet.</p>
 			</div>
 		{/if}
 	</div>
 </div>
+
+<style>
+	/* Header */
+	.binder-head {
+		@apply mb-6 flex items-end justify-between border-b-4 border-purple-900/30 pb-4;
+	}
+	.head-left {
+		@apply flex items-center gap-4;
+	}
+
+	/* Decorative 3-ring spine */
+	.spine {
+		@apply flex flex-col gap-2 rounded-l-lg border-r-4 border-stone-400 bg-[#4c1d95] p-2 pr-4;
+	}
+	.ring {
+		@apply h-4 w-4 rounded-full border border-stone-500 bg-gradient-to-b from-stone-300 via-white to-stone-400 shadow-sm;
+	}
+
+	.title {
+		@apply font-serif text-4xl font-bold text-purple-100 drop-shadow-md;
+	}
+	.subtitle {
+		@apply italic text-purple-200/80;
+	}
+
+	/* Header action buttons */
+	.head-actions {
+		@apply flex gap-2;
+	}
+	.btn-booster,
+	.btn-draw {
+		@apply flex items-center rounded-xl border-4 px-4 py-2 font-serif font-bold tracking-wide shadow-metallic transition-all hover:brightness-110 active:scale-95;
+	}
+	.btn-booster {
+		@apply border-pink-900 text-white;
+		background-image: linear-gradient(to bottom, #f472b6, #db2777, #9d174d);
+	}
+	.btn-draw {
+		@apply border-[#5c3a1e] text-[#3e2723];
+		background-image: linear-gradient(to bottom, #faeebf, #eebb4d, #aa7e22);
+	}
+
+	/* Icon badge circles */
+	.badge {
+		@apply mr-2 rounded-full border p-1 shadow-inner transition-transform;
+	}
+	.badge.booster {
+		@apply border-pink-400 bg-pink-950;
+	}
+	.badge.draw {
+		@apply border-[#faeebf] bg-[#5c3a1e] text-[#faeebf];
+	}
+	.btn-booster:hover .badge,
+	.btn-draw:hover .badge {
+		transform: scale(1.1);
+	}
+
+	/* Search + sort bar */
+	.search-bar {
+		@apply mb-6 flex items-center gap-4 rounded-xl border-2 border-purple-500/30 bg-purple-900/30 p-4 backdrop-blur-sm;
+	}
+	.search {
+		@apply relative flex-1;
+	}
+	.search :global(.search-icon) {
+		@apply absolute left-3 top-1/2 -translate-y-1/2 text-stone-400;
+	}
+	.search-input {
+		@apply w-full rounded border border-stone-300 bg-white py-2 pl-10 pr-4 text-stone-900 placeholder-stone-400 focus:border-purple-500 focus:outline-none;
+	}
+
+	.sort {
+		@apply relative;
+	}
+	.sort-btn {
+		@apply flex items-center gap-2 rounded-xl border-4 border-red-900 px-3 py-2 font-serif font-bold tracking-wide text-white shadow-metallic transition-all hover:brightness-110;
+		background-image: linear-gradient(to bottom, #fb923c, #ea580c, #b91c1c);
+	}
+	.sort-menu {
+		@apply absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-lg border-2 border-[#d4c5a9] bg-[#fdfbf7] shadow-xl;
+	}
+	.sort-option {
+		@apply flex w-full items-center justify-between border-b border-stone-100 px-4 py-2 text-left font-serif text-sm font-bold text-[#2c241b] last:border-0 hover:bg-[#e8e4d9];
+	}
+	.sort-option.active {
+		@apply bg-[#e8e4d9] text-[#8b4513];
+	}
+	.sort-option :global(.check-icon) {
+		@apply text-emerald-600;
+	}
+
+	/* Card list + empty state */
+	.card-list {
+		@apply space-y-2;
+	}
+	.empty {
+		@apply py-12 text-center text-purple-200 opacity-50;
+	}
+	.empty :global(.empty-icon) {
+		@apply mx-auto mb-4 opacity-80;
+	}
+	.empty-title {
+		@apply text-xl font-bold;
+	}
+</style>

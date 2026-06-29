@@ -10,13 +10,6 @@
 	import ClientCard from '$lib/components/ClientCard.svelte';
 	import { Coins, Layers, Scroll, Award, Target, Pencil } from '@lucide/svelte';
 
-	// HUB_THEME panel / bar-fill class strings (copied from the prototype).
-	const PANEL = 'bg-blue-900/80 border-2 border-blue-400/40 shadow-lg backdrop-blur-sm';
-	const BAR_FILL = 'bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-300';
-	const METALLIC_SHADOW =
-		'shadow-[0_4px_4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.5)]';
-	const METALLIC_FONT = 'font-serif font-bold tracking-wide';
-
 	const ed = $derived(getExpData(app.userStats, app.rules.levels));
 
 	// Cards with at least one live (Active/Cooldown) quest on either side.
@@ -42,25 +35,23 @@
 	}
 </script>
 
-<div class="grid grid-cols-12 gap-8">
+<div class="hub-grid">
 	<!-- Left Column (Stats & Actions & Log) -->
-	<div class="col-span-4 space-y-6">
+	<div class="left-col">
 		<!-- Retro File Select Header -->
-		<div class="{PANEL} p-1 rounded-xl overflow-hidden">
-			<div class="flex items-center bg-blue-950/50 p-3 border-b border-blue-500/30">
-				<div
-					class="bg-blue-900 border-2 border-blue-400 rounded shadow-inner px-3 py-1 flex items-center justify-center min-w-[80px]"
-				>
-					<div class="text-blue-200 font-serif font-bold flex items-baseline gap-2">
-						<span class="text-sm uppercase tracking-widest text-blue-300">Level</span>
-						<span class="text-3xl text-blue-100">{ed.level}</span>
+		<div class="panel file-select">
+			<div class="level-header">
+				<div class="level-box">
+					<div class="level-text">
+						<span class="level-caption">Level</span>
+						<span class="level-number">{ed.level}</span>
 					</div>
 				</div>
-				<div class="flex-1 text-right pr-2">
+				<div class="name-area">
 					{#if isEditingName}
 						<!-- svelte-ignore a11y_autofocus -->
 						<input
-							class="bg-transparent border-b border-cyan-500 text-cyan-100 font-bold text-right w-full focus:outline-none"
+							class="name-input"
 							bind:value={nameDraft}
 							onblur={commitName}
 							onkeydown={(e) => e.key === 'Enter' && commitName()}
@@ -68,7 +59,7 @@
 						/>
 					{:else}
 						<div
-							class="text-blue-50 font-serif drop-shadow-md text-lg font-bold cursor-pointer hover:text-cyan-200 flex items-center justify-end gap-2 group"
+							class="name-display"
 							role="button"
 							tabindex="0"
 							onclick={startEditName}
@@ -79,114 +70,71 @@
 								}
 							}}
 						>
-							<span class="border-b border-dashed border-blue-500/50 hover:border-cyan-400"
-								>{app.userStats.name}</span
-							>
-							<Pencil
-								size={14}
-								class="text-cyan-500 opacity-70 group-hover:opacity-100 group-hover:text-cyan-400 transition-all"
-							/>
+							<span class="name-line">{app.userStats.name}</span>
+							<Pencil size={14} class="pencil-icon" />
 						</div>
 					{/if}
 				</div>
 			</div>
-			<div class="p-4 bg-slate-900/40">
-				<div
-					class="flex justify-between text-[10px] font-bold text-cyan-200/70 mb-1 font-mono uppercase"
-				>
+			<div class="exp-section">
+				<div class="exp-labels">
 					<span>{ed.currentExp} Exp</span><span>Next: {ed.maxExp}</span>
 				</div>
-				<div
-					class="w-full h-5 bg-slate-950 rounded-full border border-blue-600/50 relative overflow-hidden shadow-inner"
-				>
-					<div
-						class="absolute top-0 left-0 h-full {BAR_FILL} shadow-[0_0_15px_cyan] transition-all duration-700 ease-out"
-						style="width: {ed.percent}%"
-					></div>
-					<div class="absolute top-0 left-0 w-full h-1/2 bg-white/10"></div>
+				<div class="exp-bar">
+					<div class="exp-fill" style="width: {ed.percent}%"></div>
+					<div class="exp-gloss"></div>
 				</div>
-				<div class="text-center text-[9px] text-blue-300 mt-2 font-mono">
+				<div class="exp-footer">
 					{ed.remaining} Exp UNTIL LEVEL UP
 				</div>
 			</div>
 		</div>
 
-		<div class="space-y-3">
-			<button
-				onclick={() => app.setView('quests')}
-				class="w-full py-4 rounded-xl bg-gradient-to-b from-emerald-400 via-emerald-700 to-emerald-900 text-emerald-100 border-4 border-emerald-950 text-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
-				<div
-					class="p-1 bg-emerald-950 rounded-full border border-emerald-400 group-hover:scale-110 transition-transform shadow-inner"
-				>
+		<div class="actions">
+			<button onclick={() => app.setView('quests')} class="action-btn card">
+				<div class="badge card">
 					<Coins size={16} />
 				</div>Start Card Quest
 			</button>
-			<button
-				onclick={() => app.openStandaloneQuest()}
-				class="w-full py-4 rounded-xl bg-gradient-to-b from-[#e879f9] via-[#d946ef] to-[#9333ea] text-white border-4 border-purple-950 text-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
-				<div
-					class="w-8 h-8 bg-purple-900 rounded-full border border-purple-400 flex items-center justify-center font-serif italic text-xl group-hover:scale-110 transition-transform shadow-inner shrink-0"
-				>
-					S
-				</div>Start Standalone Quest
+			<button onclick={() => app.openStandaloneQuest()} class="action-btn standalone">
+				<div class="badge standalone">S</div>Start Standalone Quest
 			</button>
-			<button
-				onclick={() => app.openModal('drawCard')}
-				class="w-full py-4 rounded-xl bg-gradient-to-b from-[#faeebf] via-[#eebb4d] to-[#aa7e22] text-[#3e2723] border-4 border-[#5c3a1e] text-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
-			>
-				<div
-					class="p-1.5 bg-[#5c3a1e] rounded-full border border-[#faeebf] group-hover:scale-110 transition-transform shadow-inner text-[#faeebf]"
-				>
+			<button onclick={() => app.openModal('drawCard')} class="action-btn draw">
+				<div class="badge draw">
 					<Layers size={18} />
 				</div>Draw New Card
 			</button>
 		</div>
 
-		<div class="{PANEL} p-3 rounded-xl">
-			<h3
-				class="text-blue-200 font-bold border-b border-blue-500/30 pb-1 mb-2 text-xs uppercase tracking-wider flex items-center gap-2"
-			>
-				<Target size={14} class="text-cyan-400" /> Per Hit Rate
+		<div class="panel hit-rate">
+			<h3 class="board-title">
+				<Target size={14} class="target-icon" /> Per Hit Rate
 			</h3>
-			<div class="flex justify-between items-end mb-1">
-				<span class="text-sm text-blue-300/70 font-mono">Targeted</span><span
-					class="text-xl font-mono font-bold text-emerald-400 drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]"
-					>$0</span
-				>
+			<div class="rate-row targeted">
+				<span class="rate-label">Targeted</span><span class="rate-value targeted">$0</span>
 			</div>
-			<div class="flex justify-between items-end">
-				<span class="text-sm text-blue-300/70 font-mono">Idle</span><span
-					class="text-xl font-mono font-bold text-blue-300">$0</span
-				>
+			<div class="rate-row">
+				<span class="rate-label">Idle</span><span class="rate-value idle">$0</span>
 			</div>
 		</div>
 
 		<!-- MOVED BONUS BOARD HERE -->
-		<div class="{PANEL} p-4 rounded-xl overflow-hidden">
-			<h3
-				class="text-blue-200 font-bold border-b border-blue-500/30 pb-1 mb-2 text-xs uppercase tracking-wider flex items-center gap-2"
-			>
-				<Award size={14} class="text-yellow-400" /> Bonus Board
+		<div class="panel bonus-board">
+			<h3 class="board-title">
+				<Award size={14} class="award-icon" /> Bonus Board
 			</h3>
-			<div class="space-y-3">
+			<div class="bonus-list">
 				{#each app.rules.bonuses ?? [] as bonus (bonus.id)}
 					{@const current = app.bonusProgress[bonus.id] ?? 0}
 					{@const required = bonus.required || 1}
 					{@const percent = Math.min(100, (current / required) * 100)}
-					<div class="bg-blue-950/50 p-2 rounded border border-blue-800">
-						<div class="text-[10px] font-bold text-blue-200 mb-1 truncate">{bonus.name}</div>
-						<div class="flex items-center gap-2">
-							<div
-								class="flex-1 h-3 bg-blue-950 rounded-full border border-blue-600 relative overflow-hidden"
-							>
-								<div
-									class="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-cyan-400 transition-all duration-500"
-									style="width: {percent}%"
-								></div>
+					<div class="bonus">
+						<div class="bonus-name">{bonus.name}</div>
+						<div class="bonus-row">
+							<div class="bonus-bar">
+								<div class="bonus-fill" style="width: {percent}%"></div>
 							</div>
-							<div class="text-[9px] font-mono text-cyan-300 font-bold">
+							<div class="bonus-count">
 								{current}/{required}
 							</div>
 						</div>
@@ -196,27 +144,23 @@
 		</div>
 	</div>
 
-	<div class="col-span-8">
-		<div class="flex justify-between items-center mb-4">
-			<h2 class="text-2xl font-bold text-blue-50 font-sans drop-shadow-md flex items-center gap-2">
-				<Scroll size={24} class="text-cyan-400" /> Active Quests
+	<div class="right-col">
+		<div class="quests-header">
+			<h2 class="quests-title">
+				<Scroll size={24} class="scroll-icon" /> Active Quests
 			</h2>
-			<div
-				class="text-sm font-bold text-cyan-100 bg-blue-900/50 border border-blue-500/50 px-3 py-1 rounded backdrop-blur-md font-mono"
-			>
+			<div class="date-pill">
 				{formatDateStandard(new Date())}
 			</div>
 		</div>
-		<div class="space-y-2">
+		<div class="quest-list">
 			{#each liveCards as card (card.id)}
 				<ClientCard {card} />
 			{/each}
 			{#if liveCards.length === 0}
-				<div
-					class="p-12 border-4 border-dashed border-blue-500/20 rounded-2xl bg-blue-950/40 text-center backdrop-blur-sm"
-				>
-					<h3 class="text-xl font-bold text-cyan-200 mb-2">The Quest Board is Empty</h3>
-					<p class="text-blue-300/60 mb-6">
+				<div class="empty-board">
+					<h3 class="empty-title">The Quest Board is Empty</h3>
+					<p class="empty-text">
 						Your adventure awaits! Start a new quest or draw a new card to get started.
 					</p>
 				</div>
@@ -224,3 +168,230 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	.hub-grid {
+		@apply grid grid-cols-12 gap-8;
+	}
+	.left-col {
+		@apply col-span-4 space-y-6;
+	}
+	.right-col {
+		@apply col-span-8;
+	}
+
+	/* HUB_THEME panel base + per-instance modifiers */
+	.panel {
+		@apply border-2 border-blue-400/40 bg-blue-900/80 shadow-lg backdrop-blur-sm;
+	}
+	.file-select {
+		@apply overflow-hidden rounded-xl p-1;
+	}
+	.hit-rate {
+		@apply rounded-xl p-3;
+	}
+	.bonus-board {
+		@apply overflow-hidden rounded-xl p-4;
+	}
+
+	/* ---- File-select header (Level + name) ---- */
+	.level-header {
+		@apply flex items-center border-b border-blue-500/30 bg-blue-950/50 p-3;
+	}
+	.level-box {
+		@apply flex min-w-[80px] items-center justify-center rounded border-2 border-blue-400 bg-blue-900 px-3 py-1 shadow-inner;
+	}
+	.level-text {
+		@apply flex items-baseline gap-2 font-serif font-bold text-blue-200;
+	}
+	.level-caption {
+		@apply text-sm uppercase tracking-widest text-blue-300;
+	}
+	.level-number {
+		@apply text-3xl text-blue-100;
+	}
+	.name-area {
+		@apply flex-1 pr-2 text-right;
+	}
+	.name-input {
+		@apply w-full border-b border-cyan-500 bg-transparent text-right font-bold text-cyan-100 focus:outline-none;
+	}
+	.name-display {
+		@apply flex cursor-pointer items-center justify-end gap-2 font-serif text-lg font-bold text-blue-50 drop-shadow-md;
+	}
+	.name-display:hover {
+		@apply text-cyan-200;
+	}
+	.name-line {
+		@apply border-b border-dashed border-blue-500/50;
+	}
+	.name-display:hover .name-line {
+		@apply border-cyan-400;
+	}
+	.name-display :global(.pencil-icon) {
+		@apply text-cyan-500;
+		opacity: 0.7;
+		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.name-display:hover :global(.pencil-icon) {
+		@apply text-cyan-400;
+		opacity: 1;
+	}
+
+	/* ---- Exp bar ---- */
+	.exp-section {
+		@apply bg-slate-900/40 p-4;
+	}
+	.exp-labels {
+		@apply mb-1 flex justify-between font-mono text-[10px] font-bold uppercase text-cyan-200/70;
+	}
+	.exp-bar {
+		@apply relative h-5 w-full overflow-hidden rounded-full border border-blue-600/50 bg-slate-950 shadow-inner;
+	}
+	.exp-fill {
+		@apply absolute left-0 top-0 h-full;
+		background: linear-gradient(to right, #3b82f6 0%, #22d3ee 50%, #93c5fd 100%);
+		box-shadow: 0 0 15px cyan;
+		transition: all 700ms cubic-bezier(0, 0, 0.2, 1);
+	}
+	.exp-gloss {
+		@apply absolute left-0 top-0 h-1/2 w-full bg-white/10;
+	}
+	.exp-footer {
+		@apply mt-2 text-center font-mono text-[9px] text-blue-300;
+	}
+
+	/* ---- Action buttons ---- */
+	.actions {
+		@apply space-y-3;
+	}
+	.action-btn {
+		@apply flex w-full items-center justify-center gap-2 rounded-xl border-4 py-4 font-serif text-lg font-bold tracking-wide;
+		box-shadow:
+			0 4px 4px rgba(0, 0, 0, 0.3),
+			inset 0 1px 0 rgba(255, 255, 255, 0.5);
+		transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.action-btn:hover {
+		filter: brightness(1.1);
+	}
+	.action-btn:active {
+		transform: scale(0.95);
+	}
+	.action-btn.card {
+		@apply border-emerald-950 text-emerald-100;
+		background: linear-gradient(to bottom, #34d399 0%, #047857 50%, #064e3b 100%);
+	}
+	.action-btn.standalone {
+		@apply border-purple-950 text-white;
+		background: linear-gradient(to bottom, #e879f9 0%, #d946ef 50%, #9333ea 100%);
+	}
+	.action-btn.draw {
+		border-color: #5c3a1e;
+		color: #3e2723;
+		background: linear-gradient(to bottom, #faeebf 0%, #eebb4d 50%, #aa7e22 100%);
+	}
+
+	.badge {
+		@apply rounded-full border shadow-inner;
+		transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.action-btn:hover .badge {
+		transform: scale(1.1);
+	}
+	.badge.card {
+		@apply border-emerald-400 bg-emerald-950 p-1;
+	}
+	.badge.standalone {
+		@apply flex h-8 w-8 shrink-0 items-center justify-center bg-purple-900 font-serif text-xl italic;
+		border-color: #c084fc;
+	}
+	.badge.draw {
+		@apply p-1.5;
+		border-color: #faeebf;
+		background: #5c3a1e;
+		color: #faeebf;
+	}
+
+	/* ---- Per Hit Rate + Bonus Board shared title ---- */
+	.board-title {
+		@apply mb-2 flex items-center gap-2 border-b border-blue-500/30 pb-1 text-xs font-bold uppercase tracking-wider text-blue-200;
+	}
+	.board-title :global(.target-icon) {
+		@apply text-cyan-400;
+	}
+	.board-title :global(.award-icon) {
+		@apply text-yellow-400;
+	}
+
+	.rate-row {
+		@apply flex items-end justify-between;
+	}
+	.rate-row.targeted {
+		@apply mb-1;
+	}
+	.rate-label {
+		@apply font-mono text-sm text-blue-300/70;
+	}
+	.rate-value {
+		@apply font-mono text-xl font-bold;
+	}
+	.rate-value.targeted {
+		@apply text-emerald-400;
+		filter: drop-shadow(0 0 5px rgba(52, 211, 153, 0.5));
+	}
+	.rate-value.idle {
+		@apply text-blue-300;
+	}
+
+	/* ---- Bonus Board ---- */
+	.bonus-list {
+		@apply space-y-3;
+	}
+	.bonus {
+		@apply rounded border border-blue-800 bg-blue-950/50 p-2;
+	}
+	.bonus-name {
+		@apply mb-1 truncate text-[10px] font-bold text-blue-200;
+	}
+	.bonus-row {
+		@apply flex items-center gap-2;
+	}
+	.bonus-bar {
+		@apply relative h-3 flex-1 overflow-hidden rounded-full border border-blue-600 bg-blue-950;
+	}
+	.bonus-fill {
+		@apply absolute left-0 top-0 h-full;
+		background: linear-gradient(to right, #3b82f6, #22d3ee);
+		transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	.bonus-count {
+		@apply font-mono text-[9px] font-bold text-cyan-300;
+	}
+
+	/* ---- Active Quests column ---- */
+	.quests-header {
+		@apply mb-4 flex items-center justify-between;
+	}
+	.quests-title {
+		@apply flex items-center gap-2 font-sans text-2xl font-bold text-blue-50 drop-shadow-md;
+	}
+	.quests-title :global(.scroll-icon) {
+		@apply text-cyan-400;
+	}
+	.date-pill {
+		@apply rounded border border-blue-500/50 bg-blue-900/50 px-3 py-1 font-mono text-sm font-bold text-cyan-100 backdrop-blur-md;
+	}
+	.quest-list {
+		@apply space-y-2;
+	}
+	.empty-board {
+		@apply rounded-2xl border-4 border-dashed border-blue-500/20 bg-blue-950/40 p-12 text-center backdrop-blur-sm;
+	}
+	.empty-title {
+		@apply mb-2 text-xl font-bold text-cyan-200;
+	}
+	.empty-text {
+		@apply mb-6 text-blue-300/60;
+	}
+</style>
