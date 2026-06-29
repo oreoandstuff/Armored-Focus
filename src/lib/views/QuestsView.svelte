@@ -71,7 +71,7 @@
 		<!-- Scroll Activity Log (Today's Scroll) -->
 		<ScrollLog dailyLog={app.dailyLog} allLog={app.dailyLog} />
 	</div>
-	<div class="absolute right-4 top-4 bottom-0 w-3/4">
+	<div class="absolute left-1/4 right-4 top-4 bottom-0">
 		<div
 			class="w-full h-full rounded-t-2xl border-b-0 bg-emerald-900/80 border-2 border-emerald-700/50 shadow-2xl backdrop-blur-sm p-6 overflow-y-auto"
 		>
