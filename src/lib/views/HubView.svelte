@@ -211,7 +211,7 @@
 			{#each liveCards as card (card.id)}
 				<ClientCard {card} />
 			{/each}
-			{#if app.cards.length === 0}
+			{#if liveCards.length === 0}
 				<div
 					class="p-12 border-4 border-dashed border-blue-500/20 rounded-2xl bg-blue-950/40 text-center backdrop-blur-sm"
 				>

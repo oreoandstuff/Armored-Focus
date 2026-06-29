@@ -1,26 +1,30 @@
 <script lang="ts">
-	// Relationship Score bar (SPEC §3, §4.6). Score clamped 1–100.
-	// red→yellow→green gradient with tick marks every 10%.
+	// Relationship Score bar (matches the React prototype's RelationshipBar 1:1).
+	// The inner gradient is widened by (100/safeScore)*100% so the filled portion
+	// shows red at low scores and the full red→yellow→green spectrum at 100.
+	// The numeric "{score}/100" label is rendered by the PARENT, not here.
 	let { score = 1 }: { score?: number } = $props();
 
-	const clamped = $derived(Math.max(1, Math.min(100, Math.round(score ?? 1))));
+	const safeScore = $derived(Math.max(1, Math.min(100, score || 0)));
+	const gradientWidth = $derived((100 / safeScore) * 100);
 	const ticks = [10, 20, 30, 40, 50, 60, 70, 80, 90];
 </script>
 
-<div class="w-full">
+<div
+	class="w-full h-3 bg-gray-300 rounded-full border border-gray-400 relative overflow-hidden"
+>
 	<div
-		class="relative h-4 w-full overflow-hidden rounded-full border border-black/20 bg-black/10"
+		class="h-full absolute left-0 top-0 transition-all duration-500 overflow-hidden"
+		style="width: {safeScore}%"
 	>
-		<!-- Gradient fill clipped to score% -->
 		<div
-			class="absolute inset-y-0 left-0 rounded-full"
-			style="width: {clamped}%; background: linear-gradient(to right, #ef4444 0%, #eab308 50%, #22c55e 100%);"
+			class="h-full"
+			style="width: {gradientWidth}%; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #22c55e 100%);"
 		></div>
-
-		<!-- Tick marks every 10% -->
-		{#each ticks as t}
-			<div class="absolute inset-y-0 w-px bg-black/20" style="left: {t}%;"></div>
+	</div>
+	<div class="absolute inset-0 pointer-events-none">
+		{#each ticks as t (t)}
+			<div class="absolute h-full w-px bg-black/40 top-0" style="left: {t}%"></div>
 		{/each}
 	</div>
-	<div class="mt-1 text-right font-mono text-xs text-black/60">{clamped}/100</div>
 </div>
