@@ -27,7 +27,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.cooldown {
 		@apply w-full;
 	}

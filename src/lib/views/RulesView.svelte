@@ -104,7 +104,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.rules-page {
 		@apply grid grid-cols-2 gap-8 pb-20;
 	}

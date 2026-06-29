@@ -67,7 +67,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.quests-screen {
 		@apply relative h-full w-full;
 	}

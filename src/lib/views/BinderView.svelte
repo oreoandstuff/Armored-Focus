@@ -96,7 +96,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	/* Header */
 	.binder-head {
 		@apply mb-6 flex items-end justify-between border-b-4 border-purple-900/30 pb-4;
@@ -187,9 +187,8 @@
 	}
 
 	/* Card list + empty state */
-	.card-list {
-		@apply space-y-2;
-	}
+	/* Card spacing comes from each ClientCard's own bottom margin; an @apply
+	   space-y here can't reach the child component (different style scope). */
 	.empty {
 		@apply py-12 text-center text-purple-200 opacity-50;
 	}

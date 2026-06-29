@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
+await p.goto('http://localhost:5191/hub', { waitUntil: 'networkidle' });
+await p.waitForTimeout(1000);
+await p.getByText('Draw New Card').first().click();
+await p.waitForTimeout(900);
+await p.screenshot({ path: process.argv[2] });
+await b.close();
+console.log('captured');

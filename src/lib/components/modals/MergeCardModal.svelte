@@ -58,7 +58,7 @@
 	</div>
 </Modal>
 
-<style>
+<style lang="postcss">
 	.panel {
 		@apply w-[90%] max-w-lg rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] p-6 shadow-xl;
 	}

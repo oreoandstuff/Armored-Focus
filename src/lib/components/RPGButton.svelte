@@ -31,7 +31,7 @@
 	{@render children?.()}
 </button>
 
-<style>
+<style lang="postcss">
 	/* Static layout + typography (the variant gradient/text stay inline because
 	   they are variant-dependent data from BUTTON_VARIANTS). */
 	.rpg-button {

@@ -745,7 +745,7 @@
 	</div>
 {/if}
 
-<style>
+<style lang="postcss">
 	/* ---------- Collapsed row ---------- */
 	.collapsed-card {
 		@apply relative mb-2 cursor-pointer rounded border-2 p-3 shadow-sm transition-all;

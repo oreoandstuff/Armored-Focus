@@ -94,7 +94,7 @@
 	</div>
 </Modal>
 
-<style>
+<style lang="postcss">
 	.panel {
 		@apply w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] p-8 shadow-2xl;
 	}

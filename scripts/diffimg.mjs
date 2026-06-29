@@ -1,0 +1,10 @@
+import { PNG } from 'pngjs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import pixelmatch from 'pixelmatch';
+const a = PNG.sync.read(readFileSync(process.argv[2]));
+const b = PNG.sync.read(readFileSync(process.argv[3]));
+const { width, height } = a;
+const out = new PNG({ width, height });
+const n = pixelmatch(a.data, b.data, out.data, width, height, { threshold: 0.1, diffColor: [255,0,0] });
+writeFileSync(process.argv[4], PNG.sync.write(out));
+console.log('diff px:', n);

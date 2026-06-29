@@ -19,7 +19,7 @@
 	</div>
 {/if}
 
-<style>
+<style lang="postcss">
 	.overlay {
 		@apply fixed inset-0 z-[100] flex items-center justify-center;
 	}

@@ -105,7 +105,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.scroll-region {
 		@apply mt-4 relative flex flex-col flex-1 min-h-0 transition-all duration-500;
 	}

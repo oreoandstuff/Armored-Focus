@@ -33,7 +33,7 @@
 	{/each}
 </div>
 
-<style>
+<style lang="postcss">
 	/* Header bar */
 	.tab-bar {
 		@apply flex justify-center px-0 pt-2 sticky top-0 z-50 shadow-lg border-b-4 transition-colors duration-500 shrink-0;

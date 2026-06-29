@@ -171,7 +171,7 @@
 	</div>
 </Modal>
 
-<style>
+<style lang="postcss">
 	.panel {
 		@apply w-full max-w-lg overflow-hidden rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-2xl;
 	}

@@ -70,7 +70,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.section {
 		@apply mb-8 bg-[#fdfbf7] border-2 border-[#d4c5a9] rounded-xl overflow-hidden shadow-md;
 	}

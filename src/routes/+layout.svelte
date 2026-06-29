@@ -47,7 +47,7 @@
 	<MergeCardModal />
 </div>
 
-<style>
+<style lang="postcss">
 	.app-shell {
 		@apply flex h-screen flex-col font-sans;
 	}

@@ -21,7 +21,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.bar-track {
 		@apply relative h-3 w-full overflow-hidden rounded-full border border-gray-400 bg-gray-300;
 	}

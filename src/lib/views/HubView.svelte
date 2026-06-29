@@ -169,7 +169,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.hub-grid {
 		@apply grid grid-cols-12 gap-8;
 	}
@@ -382,9 +382,8 @@
 	.date-pill {
 		@apply rounded border border-blue-500/50 bg-blue-900/50 px-3 py-1 font-mono text-sm font-bold text-cyan-100 backdrop-blur-md;
 	}
-	.quest-list {
-		@apply space-y-2;
-	}
+	/* Card spacing comes from each ClientCard's own bottom margin; an @apply
+	   space-y here can't reach the child component (different style scope). */
 	.empty-board {
 		@apply rounded-2xl border-4 border-dashed border-blue-500/20 bg-blue-950/40 p-12 text-center backdrop-blur-sm;
 	}

@@ -156,7 +156,7 @@
 	</div>
 </Modal>
 
-<style>
+<style lang="postcss">
 	.panel {
 		@apply flex max-h-[90vh] w-[90%] max-w-6xl flex-col rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-xl;
 	}
