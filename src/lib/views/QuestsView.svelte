@@ -1,14 +1,15 @@
 <script lang="ts">
-	// Quests screen (SPEC §2.2). Fantasy-map / emerald theme (§7, QUEST_THEME).
-	// Full-bleed two-column layout: left ~1/4 sidebar (search + actions + scroll),
-	// right ~3/4 quest tray listing cards with a live (Active/Cooldown) quest.
+	// Quests screen (SPEC §2.2). Fantasy-map / emerald theme (QUEST_THEME).
+	// Full-bleed two-column layout matching the React prototype's `view === 'quests'`
+	// block: an absolute 1/4 left sidebar (search + 3 action buttons + scroll log)
+	// over a 3/4 right quest tray. The shell renders this view in a padding-less
+	// `h-full w-full` container, so this component owns the full-bleed split.
 	import { app } from '$lib/state.svelte';
-	import { QUEST_THEME, METALLIC_FONT } from '$lib/theme';
+	import { METALLIC_SHADOW, METALLIC_FONT } from '$lib/theme';
 	import { searchCards } from '$lib/core/sorting';
 	import ScrollLog from '$lib/components/ScrollLog.svelte';
 	import ClientCard from '$lib/components/ClientCard.svelte';
-	import RPGButton from '$lib/components/RPGButton.svelte';
-	import { Search, Map, Compass, ScrollText } from '@lucide/svelte';
+	import { Search, Coins, Map } from '@lucide/svelte';
 
 	// Cards that have at least one live quest (Active/Cooldown) on either side.
 	const liveCards = $derived(
@@ -23,73 +24,69 @@
 	const shown = $derived(searchCards(liveCards, app.search));
 </script>
 
-<div class="min-h-screen w-full {QUEST_THEME.bg} {QUEST_THEME.text}">
-	<div class="flex w-full flex-col gap-6 p-6 lg:flex-row">
-		<!-- LEFT SIDEBAR (~1/4) -->
-		<aside class="flex w-full flex-col gap-4 lg:w-1/4">
-			<header class="flex items-center gap-2">
-				<Map size={26} class={QUEST_THEME.accent} />
-				<h1 class="{METALLIC_FONT} text-2xl text-emerald-50">Quest Map</h1>
-			</header>
+<!-- QUEST SCREEN -->
+<div class="relative h-full w-full">
+	<div class="absolute left-0 top-0 w-1/4 h-full z-10 p-4 flex flex-col gap-4">
+		<div class="relative">
+			<Search class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-900" size={18} />
+			<input
+				class="w-full pl-10 pr-4 py-3 border-2 border-emerald-800 rounded-xl bg-emerald-50/90 shadow-lg focus:outline-none focus:border-emerald-600 font-bold text-emerald-900"
+				placeholder="Search Quests..."
+				bind:value={app.search}
+			/>
+		</div>
 
-			<!-- Search box — actually filters the tray (SPEC §9 #4). -->
-			<div
-				class="flex items-center gap-2 rounded-md border {QUEST_THEME.border} bg-emerald-950/60 px-3 py-2"
-			>
-				<Search size={16} class="text-emerald-300" />
-				<input
-					bind:value={app.search}
-					placeholder="Search Quests..."
-					class="w-full bg-transparent text-emerald-50 placeholder-emerald-300/50 outline-none"
-				/>
-			</div>
-
-			<!-- Actions -->
-			<div class="flex flex-col gap-2">
-				<!-- Start Card Quest: a card quest needs a specific card, so route to the
-				     Binder where the user can pick a card and start a quest from it. -->
-				<RPGButton variant="action" class="w-full" onclick={() => app.setView('binder')}>
-					Start Card Quest
-				</RPGButton>
-
-				<!-- Standalone quest (one-off, not tied to a card). -->
-				<RPGButton variant="primary" class="w-full" onclick={() => app.openStandaloneQuest()}>
-					Start Standalone Quest
-				</RPGButton>
-
-				<!-- Explore for Quests: prototype dead button (SPEC §9 #5). Wired to open
-				     the Draw Card modal — exploring brings a new card/lead into play. -->
-				<button
-					onclick={() => app.openModal('drawCard')}
-					class="flex w-full items-center justify-center gap-2 rounded border border-blue-400/50 bg-gradient-to-b from-blue-500 to-blue-700 px-4 py-2 font-serif font-bold tracking-wide text-white shadow-[0_4px_4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.4)] transition hover:brightness-110 active:scale-95"
-				>
-					<Compass size={16} /> Explore for Quests
-				</button>
-			</div>
-
-			<!-- Today's Scroll -->
-			<ScrollLog dailyLog={app.dailyLog} allLog={app.dailyLog} />
-		</aside>
-
-		<!-- RIGHT TRAY (~3/4) -->
-		<section
-			class="flex w-full flex-col rounded-lg border {QUEST_THEME.tray} p-4 lg:w-3/4"
+		<!-- BUTTONS -->
+		<button
+			onclick={() => app.setView('binder')}
+			class="w-full py-4 rounded-xl bg-gradient-to-b from-emerald-400 via-emerald-700 to-emerald-900 text-emerald-100 border-4 border-emerald-950 text-base px-2 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
 		>
-			<h2 class="mb-4 flex items-center gap-2 {METALLIC_FONT} text-xl text-emerald-100">
-				<ScrollText size={20} class="text-emerald-300" /> Active Quests
-			</h2>
+			<div
+				class="p-1 bg-emerald-950 rounded-full border border-emerald-400 group-hover:scale-110 transition-transform shadow-inner"
+			>
+				<Coins size={18} />
+			</div>Start Card Quest
+		</button>
+		<button
+			onclick={() => app.openStandaloneQuest()}
+			class="w-full py-4 rounded-xl bg-gradient-to-b from-[#e879f9] via-[#d946ef] to-[#9333ea] text-white border-4 border-purple-950 text-base px-2 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
+		>
+			<div
+				class="w-8 h-8 bg-purple-900 rounded-full border border-purple-400 flex items-center justify-center font-serif italic text-xl group-hover:scale-110 transition-transform shadow-inner shrink-0"
+			>
+				S
+			</div>Start Standalone Quest
+		</button>
+		<button
+			onclick={() => app.openModal('drawCard')}
+			class="w-full py-4 rounded-xl bg-gradient-to-b from-blue-400 via-blue-800 to-[#172554] text-blue-100 border-4 border-blue-950 text-base px-2 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
+		>
+			<div
+				class="p-1 bg-blue-900 rounded-full border border-blue-400 group-hover:scale-110 transition-transform shadow-inner shrink-0"
+			>
+				<Map size={18} />
+			</div> Explore for Quests
+		</button>
 
-			<div class="flex flex-col gap-3 overflow-y-auto">
+		<!-- Scroll Activity Log (Today's Scroll) -->
+		<ScrollLog dailyLog={app.dailyLog} allLog={app.dailyLog} />
+	</div>
+	<div class="absolute right-4 top-4 bottom-0 w-3/4">
+		<div
+			class="w-full h-full rounded-t-2xl border-b-0 bg-emerald-900/80 border-2 border-emerald-700/50 shadow-2xl backdrop-blur-sm p-6 overflow-y-auto"
+		>
+			<div class="grid grid-cols-1 gap-4">
 				{#each shown as card (card.id)}
 					<ClientCard {card} />
-				{:else}
-					<div class="flex flex-1 flex-col items-center justify-center py-20 text-center">
-						<Map size={48} class="mb-4 text-emerald-300/60" />
-						<p class="{METALLIC_FONT} text-2xl text-emerald-100">No Active Quests</p>
-						<p class="mt-2 italic text-emerald-300/70">The realm is quiet... for now.</p>
-					</div>
 				{/each}
 			</div>
-		</section>
+			{#if shown.length === 0}
+				<div class="h-full flex flex-col items-center justify-center text-emerald-100/50">
+					<Map size={64} class="mb-4 opacity-50" />
+					<h3 class="text-2xl font-bold font-serif">No Active Quests</h3>
+					<p>The realm is quiet... for now.</p>
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>

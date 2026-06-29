@@ -1,14 +1,11 @@
 <script lang="ts">
-	// Editable rule list section (SPEC §3, §7 parchment / dark-header card).
+	// Editable rule list section (matches the React prototype's RuleSection).
 	// Presentational: parent owns the rules state and handles add/update/delete.
 	import { Trash2, Plus } from '@lucide/svelte';
-	import { THEME } from '$lib/theme';
 	import type { RulesKey } from '$lib/core/types';
 
 	// A rule row always has id + name; the numeric field varies by rule type
-	// (value | exp | bonusPercent | reward | required) — read dynamically via
-	// `valueField`. No index signature here so the concrete domain rule types
-	// (NamedValue, QuestTypeRule, …) are assignable to this prop.
+	// (value | exp | bonusPercent | reward) — read dynamically via `valueField`.
 	type RuleRow = { id: string; name: string };
 
 	let {
@@ -39,67 +36,44 @@
 	}
 </script>
 
-<div class="overflow-hidden rounded-lg border-2" style="border-color: {THEME.border};">
-	<!-- Dark header -->
-	<div
-		class="flex items-center justify-between px-4 py-2"
-		style="background: {THEME.headerBg}; color: {THEME.headerText};"
-	>
-		<h3 class="font-serif text-lg font-bold tracking-wide">{title}</h3>
+<div class="mb-8 bg-[#fdfbf7] border-2 border-[#d4c5a9] rounded-xl overflow-hidden shadow-md">
+	<div class="bg-[#2c241b] text-[#f5deb3] p-3 flex justify-between items-center">
+		<h3 class="font-serif font-bold text-lg">{title}</h3>
 		<button
 			onclick={() => onAdd?.(dataKey)}
-			class="flex items-center gap-1 rounded border px-2 py-1 font-serif text-sm font-bold hover:brightness-110"
-			style="border-color: {THEME.goldBorder}; color: {THEME.headerText};"
+			class="text-xs bg-[#eebb4d] text-[#2c241b] px-2 py-1 rounded font-bold hover:brightness-110 flex items-center gap-1"
 		>
-			<Plus size={14} /> Add
+			<Plus size={12} /> Add
 		</button>
 	</div>
-
-	<!-- Body -->
-	<div style="background: {THEME.panel}; color: {THEME.text};">
-		<!-- Column labels -->
-		<div
-			class="grid grid-cols-[1fr_8rem_auto] gap-2 px-4 py-1 text-xs font-bold uppercase tracking-wide opacity-70"
-		>
-			<span>{columns[0] ?? 'Name'}</span>
-			<span>{columns[1] ?? 'Value'}</span>
-			<span class="sr-only">Actions</span>
-		</div>
-
-		<div class="flex flex-col">
-			{#each rules as r (r.id)}
-				<div class="grid grid-cols-[1fr_8rem_auto] items-center gap-2 px-4 py-1.5">
-					<input
-						type="text"
-						value={r.name}
-						oninput={(e) => onUpdate?.(r.id, 'name', e.currentTarget.value)}
-						class="rounded border px-2 py-1 text-sm"
-						style="background: {THEME.inputBg}; border-color: {THEME.border}; color: {THEME.text};"
-					/>
-					<div class="flex items-center gap-1">
+	<div class="p-4">
+		{#each rules as item (item.id)}
+			<div class="flex items-center gap-4 mb-2 last:mb-0">
+				<input
+					class="flex-1 border-b border-[#d4c5a9] bg-transparent py-1 px-2 focus:outline-none focus:border-[#8b4513]"
+					value={item.name}
+					oninput={(e) => onUpdate?.(item.id, 'name', e.currentTarget.value)}
+				/>
+				{#if columns.includes('Value')}
+					<div class="flex items-center w-32">
 						<input
 							type="number"
-							value={numValue(r)}
-							oninput={(e) =>
-								onUpdate?.(r.id, valueField, e.currentTarget.value === '' ? 0 : Number(e.currentTarget.value))}
-							class="w-20 rounded border px-2 py-1 text-right font-mono text-sm"
-							style="background: {THEME.inputBg}; border-color: {THEME.border}; color: {THEME.text};"
+							class="w-full border border-[#d4c5a9] rounded py-1 px-2 text-right"
+							value={numValue(item)}
+							oninput={(e) => onUpdate?.(item.id, valueField, parseFloat(e.currentTarget.value))}
 						/>
-						{#if unit}
-							<span class="text-xs opacity-70">{unit}</span>
-						{/if}
+						<span class="ml-2 text-xs font-bold text-stone-500 w-8"
+							>{unit || (valueField === 'exp' ? 'Exp' : '%')}</span
+						>
 					</div>
-					<button
-						onclick={() => onDelete?.(r.id)}
-						aria-label="Delete {r.name}"
-						class="rounded p-1 text-red-700 hover:bg-red-100"
-					>
-						<Trash2 size={16} />
-					</button>
-				</div>
-			{:else}
-				<p class="px-4 py-3 text-sm italic opacity-60">No rules yet.</p>
-			{/each}
-		</div>
+				{/if}
+				<button
+					onclick={() => onDelete?.(item.id)}
+					class="text-stone-400 hover:text-red-700"
+				>
+					<Trash2 size={16} />
+				</button>
+			</div>
+		{/each}
 	</div>
 </div>

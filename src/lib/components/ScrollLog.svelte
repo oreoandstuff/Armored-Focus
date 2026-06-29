@@ -1,134 +1,129 @@
 <script lang="ts">
-	// Activity scroll log (SPEC §3, §7).
-	// Collapsed = "Today's Scroll" (dailyLog, already filtered to today by parent).
-	// Expanded = fullscreen "Grand Archive of Deeds" with search over
-	// clientName / questType / note.
+	// Activity scroll log (SPEC §3, §7). Markup mirrors the React prototype's
+	// `ScrollLog` (parchment scroll panel).
+	//   Collapsed = "Today's Scroll": dailyLog entries dated today.
+	//   Expanded  = fullscreen "Grand Archive of Deeds": allLog with a search
+	//               box filtering by clientName / questType / note.
 	import type { LogEntry } from '$lib/core/types';
-	import { formatDateStandard } from '$lib/core/dates';
-	import { Scroll, Search, X } from '@lucide/svelte';
+	import { formatDateStandard, isToday } from '$lib/core/dates';
+	import { Scroll, X, ChevronUp } from '@lucide/svelte';
 
 	let { dailyLog = [], allLog = [] }: { dailyLog?: LogEntry[]; allLog?: LogEntry[] } = $props();
 
-	let expanded = $state(false);
-	let query = $state('');
+	let isExpanded = $state(false);
+	let filterText = $state('');
 
-	const filtered = $derived.by(() => {
-		const q = query.trim().toLowerCase();
-		if (!q) return allLog;
-		return allLog.filter((e) => {
-			const name = (e.clientName ?? '').toLowerCase();
-			const type = (e.questType ?? '').toLowerCase();
-			const note = (e.note ?? '').toLowerCase();
-			return name.includes(q) || type.includes(q) || note.includes(q);
+	// Parchment dot texture (copied verbatim from the prototype overlay).
+	const textureUrl =
+		`url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%238b4513' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E")`;
+
+	// Collapsed shows only today's entries; expanded shows the whole archive
+	// filtered by the search box (mirrors the prototype's filter logic).
+	const filteredLogs = $derived.by(() => {
+		const source = isExpanded ? allLog : dailyLog;
+		const q = filterText.toLowerCase();
+		return source.filter((log) => {
+			if (!isExpanded && !isToday(log.date)) return false;
+			return (
+				log.clientName.toLowerCase().includes(q) ||
+				log.questType.toLowerCase().includes(q) ||
+				(log.note?.toLowerCase().includes(q) ?? false)
+			);
 		});
 	});
-
-	function open() {
-		expanded = true;
-	}
-	function close() {
-		expanded = false;
-	}
 </script>
 
-{#snippet entry(e: LogEntry)}
-	<div class="rounded border border-[#8b4513]/30 bg-[#fffdf5]/70 p-3">
-		<div class="flex items-start justify-between gap-2">
-			<span class="font-serif font-bold text-[#5a3a1a]">{e.clientName}</span>
-			<span class="font-mono text-xs text-[#8b4513]/70">{formatDateStandard(e.date)}</span>
-		</div>
-		<div class="mt-1 flex items-center gap-2">
-			<span class="italic text-[#6b4a2a]">{e.questType}</span>
-			{#if e.exp > 0}
-				<span class="rounded-full bg-[#daa520] px-2 py-0.5 font-mono text-xs font-bold text-[#2c241b]"
-					>+{e.exp} XP</span
-				>
-			{/if}
-		</div>
-		{#if e.note}
-			<p class="mt-1 text-sm italic text-[#6b4a2a]">"{e.note}"</p>
-		{/if}
-	</div>
-{/snippet}
-
-<!-- Collapsed: Today's Scroll -->
 <div
-	class="rounded-md border-[6px] border-[#8b4513] bg-[#f5e6d3] shadow-inner"
-	style="background-image: radial-gradient(rgba(139,69,19,0.1) 1px, transparent 1px); background-size: 12px 12px;"
+	class={`mt-4 relative transition-all duration-500 ${isExpanded ? 'fixed inset-4 z-50 flex flex-col' : 'flex-1 flex flex-col min-h-0'}`}
 >
-	<!-- Wood roll top bar -->
-	<div class="h-3 rounded-t bg-gradient-to-b from-[#a0672e] to-[#5a3a1a]"></div>
+	<!-- Backdrop for Expanded Mode -->
+	{#if isExpanded}
+		<button
+			type="button"
+			aria-label="Close archive"
+			class="absolute inset-0 bg-black/60 -z-10 rounded-xl"
+			onclick={() => (isExpanded = false)}
+		></button>
+	{/if}
 
-	<div class="p-3">
-		<div class="mb-2 flex items-center justify-between">
-			<h3 class="flex items-center gap-2 font-serif text-lg font-bold text-[#5a3a1a]">
-				<Scroll size={18} /> Today's Scroll
-			</h3>
-			<button
-				onclick={open}
-				class="rounded border border-[#8b4513] bg-[#e8d3b5] px-2 py-1 font-serif text-xs font-bold text-[#5a3a1a] hover:brightness-105"
-			>
-				Grand Archive
-			</button>
-		</div>
-
-		<div class="flex max-h-64 flex-col gap-2 overflow-y-auto">
-			{#each dailyLog as e (e.id)}
-				{@render entry(e)}
-			{:else}
-				<p class="py-4 text-center italic text-[#8b4513]/70">The scroll is blank...</p>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Wood roll bottom bar -->
-	<div class="h-3 rounded-b bg-gradient-to-t from-[#a0672e] to-[#5a3a1a]"></div>
-</div>
-
-<!-- Expanded: Grand Archive of Deeds (fullscreen overlay) -->
-{#if expanded}
-	<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur">
+	<div
+		class={`flex flex-col bg-[#f5e6d3] border-[6px] border-[#8b4513] rounded-lg shadow-2xl relative overflow-hidden ${isExpanded ? 'w-full max-w-4xl mx-auto h-full' : 'h-full'}`}
+	>
+		<!-- Scroll Top Roll Effect -->
 		<div
-			class="flex max-h-[85vh] w-full max-w-3xl flex-col rounded-md border-[6px] border-[#8b4513] bg-[#f5e6d3]"
-			style="background-image: radial-gradient(rgba(139,69,19,0.1) 1px, transparent 1px); background-size: 12px 12px;"
-		>
-			<div class="h-3 rounded-t bg-gradient-to-b from-[#a0672e] to-[#5a3a1a]"></div>
+			class="h-4 bg-gradient-to-b from-[#5d4037] to-[#8d6e63] border-b border-[#3e2723] shadow-md relative z-10 shrink-0"
+		></div>
 
-			<div class="flex items-center justify-between gap-2 px-4 pt-3">
-				<h2 class="flex items-center gap-2 font-serif text-2xl font-bold text-[#5a3a1a]">
-					<Scroll size={24} /> Grand Archive of Deeds
-				</h2>
+		<!-- Header Area -->
+		<div
+			class="bg-[#e6d5c1] p-3 border-b border-[#d4c5a9] flex justify-between items-center shrink-0 shadow-sm"
+		>
+			<h3 class="font-serif font-bold text-[#3e2723] text-lg flex items-center gap-2">
+				<Scroll size={20} class="text-[#8b4513]" />
+				{isExpanded ? 'Grand Archive of Deeds' : "Today's Scroll"}
+			</h3>
+			<div class="flex gap-2">
+				{#if isExpanded}
+					<input
+						class="px-2 py-1 text-sm bg-white border border-[#d4c5a9] rounded focus:outline-none focus:border-[#8b4513] font-serif"
+						placeholder="Search archives..."
+						bind:value={filterText}
+					/>
+				{/if}
 				<button
-					onclick={close}
-					aria-label="Close archive"
-					class="rounded border border-[#8b4513] bg-[#e8d3b5] p-1 text-[#5a3a1a] hover:brightness-105"
+					onclick={() => (isExpanded = !isExpanded)}
+					class="text-[#8b4513] hover:bg-[#d7ccc8] p-1 rounded transition-colors"
 				>
-					<X size={18} />
+					{#if isExpanded}
+						<X size={20} />
+					{:else}
+						<div class="flex items-center gap-1 text-xs font-bold uppercase">
+							<ChevronUp size={16} /> Expand
+						</div>
+					{/if}
 				</button>
 			</div>
-
-			<div class="px-4 pt-3">
-				<div
-					class="flex items-center gap-2 rounded border border-[#8b4513] bg-[#fffef8] px-2 py-1"
-				>
-					<Search size={16} class="text-[#8b4513]" />
-					<input
-						bind:value={query}
-						placeholder="Search deeds..."
-						class="w-full bg-transparent text-[#5a3a1a] placeholder-[#8b4513]/50 outline-none"
-					/>
-				</div>
-			</div>
-
-			<div class="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
-				{#each filtered as e (e.id)}
-					{@render entry(e)}
-				{:else}
-					<p class="py-8 text-center italic text-[#8b4513]/70">The scroll is blank...</p>
-				{/each}
-			</div>
-
-			<div class="h-3 rounded-b bg-gradient-to-t from-[#a0672e] to-[#5a3a1a]"></div>
 		</div>
+
+		<!-- Log Content -->
+		<div class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f5e6d3] relative">
+			<!-- Texture Overlay -->
+			<div
+				class="absolute inset-0 opacity-10 pointer-events-none"
+				style={`background-image: ${textureUrl}`}
+			></div>
+
+			{#if filteredLogs.length === 0}
+				<div class="text-center text-[#a1887f] italic py-4 relative z-10">The scroll is blank...</div>
+			{:else}
+				{#each filteredLogs as log (log.id)}
+					<div class="border-b border-[#d7ccc8] pb-2 last:border-0 relative z-10">
+						<div class="flex justify-between items-start">
+							<div class="font-bold text-[#3e2723] font-serif">{log.clientName}</div>
+							<div class="text-xs text-[#8d6e63] font-mono">{formatDateStandard(log.date)}</div>
+						</div>
+						<div class="flex justify-between text-sm items-center">
+							<span class="text-[#5d4037] italic">{log.questType}</span>
+							{#if log.exp > 0}
+								<span
+									class="font-bold text-[#2e7d32] bg-[#c8e6c9] px-1 rounded text-xs border border-[#81c784]"
+									>+{log.exp} XP</span
+								>
+							{/if}
+						</div>
+						{#if log.note}
+							<div class="text-xs text-[#5d4037] mt-1 bg-[#d7ccc8]/30 p-1 rounded italic">
+								"{log.note}"
+							</div>
+						{/if}
+					</div>
+				{/each}
+			{/if}
+		</div>
+
+		<!-- Scroll Bottom Roll Effect -->
+		<div
+			class="h-6 bg-gradient-to-t from-[#5d4037] to-[#8d6e63] border-t border-[#3e2723] shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative z-10 shrink-0"
+		></div>
 	</div>
-{/if}
+</div>
