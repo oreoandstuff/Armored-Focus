@@ -3,6 +3,7 @@
 	// prototype's ClientCard 1:1. Collapsed = compact 12-col row; expanded = full
 	// editable card with quest actions. The only prop is the card itself; all
 	// persistence/mutations go through the `app` store.
+	import { untrack } from 'svelte';
 	import { app } from '$lib/state.svelte';
 	import type { Card, SideKey, Quest } from '$lib/core/types';
 	import { METALLIC_FONT, METALLIC_SHADOW } from '$lib/theme';
@@ -34,7 +35,7 @@
 
 	// ---- local UI state ----
 	let visibleFace = $state<'Client' | 'Business'>(
-		card.primarySide === 'Business' ? 'Business' : 'Client'
+		untrack(() => (card.primarySide === 'Business' ? 'Business' : 'Client'))
 	);
 	let isEditing = $state(false);
 	let editData = $state<Card | null>(null);
@@ -415,7 +416,7 @@
 							{#if isClientFace}
 								<div class="grid grid-cols-2 gap-2">
 									<div>
-										<label class="text-[10px] font-bold text-stone-500 uppercase">Phone</label>
+										<span class="text-[10px] font-bold text-stone-500 uppercase">Phone</span>
 										{#if isEditing && editData}
 											<input class="w-full text-xs border p-1" bind:value={editData.phone} />
 										{:else}
@@ -423,7 +424,7 @@
 										{/if}
 									</div>
 									<div>
-										<label class="text-[10px] font-bold text-stone-500 uppercase">DOB</label>
+										<span class="text-[10px] font-bold text-stone-500 uppercase">DOB</span>
 										{#if isEditing && editData}
 											<input class="w-full text-xs border p-1" type="date" bind:value={editData.dob} />
 										{:else}
@@ -432,7 +433,7 @@
 									</div>
 								</div>
 								<div>
-									<label class="text-[10px] font-bold text-stone-500 uppercase">Email</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase">Email</span>
 									{#if isEditing && editData}
 										<input class="w-full text-xs border p-1" bind:value={editData.email} />
 									{:else}
@@ -440,7 +441,7 @@
 									{/if}
 								</div>
 								<div>
-									<label class="text-[10px] font-bold text-stone-500 uppercase">Address</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase">Address</span>
 									{#if isEditing && editData}
 										<input class="w-full text-xs border p-1" bind:value={editData.address} />
 									{:else}
@@ -448,7 +449,7 @@
 									{/if}
 								</div>
 								<div>
-									<label class="text-[10px] font-bold text-stone-500 uppercase">Residence</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase">Residence</span>
 									{#if isEditing && editData}
 										<select class="w-full text-xs border p-1" bind:value={editData.residenceType}>
 											{#each RESIDENCE_OPTIONS as r}<option value={r}>{r}</option>{/each}
@@ -459,8 +460,8 @@
 								</div>
 
 								<div class="bg-white p-2 rounded border border-[#d4c5a9]">
-									<label class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
-										>Line of Business</label
+									<span class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
+										>Line of Business</span
 									>
 									{#if isEditing}
 										<div class="grid grid-cols-2 gap-x-2 gap-y-1 border p-1">
@@ -488,7 +489,7 @@
 									{/if}
 								</div>
 								<div class="bg-white p-2 rounded border border-[#d4c5a9]">
-									<label class="text-[10px] font-bold text-stone-500 uppercase block mb-1">Carriers</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase block mb-1">Carriers</span>
 									{#if isEditing}
 										<div class="grid grid-cols-2 gap-x-2 gap-y-1 border p-1">
 											{#each CLIENT_CARRIER_OPTIONS as c}
@@ -517,7 +518,7 @@
 							{:else}
 								<div class="grid grid-cols-2 gap-2">
 									<div>
-										<label class="text-[10px] font-bold text-stone-500 uppercase">Phone</label>
+										<span class="text-[10px] font-bold text-stone-500 uppercase">Phone</span>
 										{#if isEditing && editData}
 											<input class="w-full text-xs border p-1" bind:value={editData.businessSide.phone} />
 										{:else}
@@ -525,7 +526,7 @@
 										{/if}
 									</div>
 									<div>
-										<label class="text-[10px] font-bold text-stone-500 uppercase">EIN</label>
+										<span class="text-[10px] font-bold text-stone-500 uppercase">EIN</span>
 										{#if isEditing && editData}
 											<input class="w-full text-xs border p-1" bind:value={editData.businessSide.ein} />
 										{:else}
@@ -534,7 +535,7 @@
 									</div>
 								</div>
 								<div>
-									<label class="text-[10px] font-bold text-stone-500 uppercase">Est.</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase">Est.</span>
 									{#if isEditing && editData}
 										<input class="w-full text-xs border p-1" bind:value={editData.businessSide.established} />
 									{:else}
@@ -542,7 +543,7 @@
 									{/if}
 								</div>
 								<div>
-									<label class="text-[10px] font-bold text-stone-500 uppercase">Occupancy</label>
+									<span class="text-[10px] font-bold text-stone-500 uppercase">Occupancy</span>
 									{#if isEditing && editData}
 										<select class="w-full text-xs border p-1" bind:value={editData.businessSide.occupancy}>
 											{#each OCCUPANCY_OPTIONS as o}<option value={o}>{o}</option>{/each}
@@ -552,8 +553,8 @@
 									{/if}
 								</div>
 								<div class="bg-white p-2 rounded border border-[#d4c5a9]">
-									<label class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
-										>Business Lines</label
+									<span class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
+										>Business Lines</span
 									>
 									{#if isEditing}
 										<div class="grid grid-cols-2 gap-x-2 gap-y-1 border p-1">
@@ -581,8 +582,8 @@
 									{/if}
 								</div>
 								<div class="bg-white p-2 rounded border border-[#d4c5a9]">
-									<label class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
-										>Business Carriers</label
+									<span class="text-[10px] font-bold text-stone-500 uppercase block mb-1"
+										>Business Carriers</span
 									>
 									{#if isEditing}
 										<div class="grid grid-cols-2 gap-x-2 gap-y-1 border p-1">

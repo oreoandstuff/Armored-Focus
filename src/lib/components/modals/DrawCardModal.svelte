@@ -230,8 +230,8 @@
 
 						<!-- Client LoB Selection -->
 						<div class="mt-4">
-							<label class="text-xs font-bold uppercase text-stone-500 block mb-1"
-								>Client Lines of Business</label
+							<span class="text-xs font-bold uppercase text-stone-500 block mb-1"
+								>Client Lines of Business</span
 							>
 							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
 								{#each CLIENT_LOB_OPTIONS as lob}
@@ -247,7 +247,7 @@
 							</div>
 						</div>
 						<div class="mt-2">
-							<label class="text-xs font-bold uppercase text-stone-500 block mb-1">Client Carriers</label>
+							<span class="text-xs font-bold uppercase text-stone-500 block mb-1">Client Carriers</span>
 							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
 								{#each CLIENT_CARRIER_OPTIONS as c}
 									<label class="flex items-center gap-1 text-[10px]">
@@ -325,7 +325,7 @@
 
 						<!-- Business LoB Selection -->
 						<div class="mt-4">
-							<label class="text-xs font-bold uppercase text-stone-500 block mb-1">Business Lines</label>
+							<span class="text-xs font-bold uppercase text-stone-500 block mb-1">Business Lines</span>
 							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
 								{#each BUSINESS_LOB_OPTIONS as lob}
 									<label class="flex items-center gap-1 text-[10px]">
@@ -340,8 +340,8 @@
 							</div>
 						</div>
 						<div class="mt-2">
-							<label class="text-xs font-bold uppercase text-stone-500 block mb-1"
-								>Business Carriers</label
+							<span class="text-xs font-bold uppercase text-stone-500 block mb-1"
+								>Business Carriers</span
 							>
 							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
 								{#each BUSINESS_CARRIER_OPTIONS as c}

@@ -67,9 +67,17 @@
 							autofocus
 						/>
 					{:else}
-						<h2
+						<div
 							class="text-blue-50 font-serif drop-shadow-md text-lg font-bold cursor-pointer hover:text-cyan-200 flex items-center justify-end gap-2 group"
+							role="button"
+							tabindex="0"
 							onclick={startEditName}
+							onkeydown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									startEditName();
+								}
+							}}
 						>
 							<span class="border-b border-dashed border-blue-500/50 hover:border-cyan-400"
 								>{app.userStats.name}</span
@@ -78,7 +86,7 @@
 								size={14}
 								class="text-cyan-500 opacity-70 group-hover:opacity-100 group-hover:text-cyan-400 transition-all"
 							/>
-						</h2>
+						</div>
 					{/if}
 				</div>
 			</div>
