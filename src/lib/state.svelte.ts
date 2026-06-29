@@ -5,6 +5,7 @@
 // Views and components should call these action methods rather than mutating
 // state directly, so persistence stays consistent.
 
+import { goto } from '$app/navigation';
 import type { Card, LogEntry, Rules, RulesKey, UserStats, View, SideKey } from './core/types';
 import { generateId } from './core/id';
 import { newCard, newStandaloneCard } from './core/card';
@@ -79,7 +80,6 @@ class AppStore {
 	bonusProgress = $state<Record<string, number>>({});
 
 	// UI-only state
-	view = $state<View>('hub');
 	modals = $state<ModalState>({ ...NO_MODALS });
 	expandedCardId = $state<string | null>(null);
 	search = $state('');
@@ -106,8 +106,9 @@ class AppStore {
 	}
 
 	// ---- navigation / modals ----
+	/** Navigate to a view's route (the URL is the source of truth for the view). */
 	setView(v: View) {
-		this.view = v;
+		goto(`/${v}`);
 	}
 	openModal(name: keyof ModalState) {
 		this.modals = { ...NO_MODALS, [name]: true };
