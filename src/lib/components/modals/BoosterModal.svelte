@@ -194,7 +194,7 @@
 	}
 
 	.col-grid {
-		@apply grid grid-cols-6 gap-4;
+		@apply grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6;
 	}
 	.col-map {
 		@apply rounded border border-[#d4c5a9] bg-white p-2;

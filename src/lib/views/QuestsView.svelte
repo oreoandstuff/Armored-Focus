@@ -69,12 +69,18 @@
 
 <style lang="postcss">
 	.quests-screen {
-		@apply relative h-full w-full;
+		/* Mobile: a normal scrollable vertical column. Desktop (lg): full-bleed
+		   absolute split, restored byte-for-byte to `relative h-full w-full`. */
+		@apply flex flex-col h-full w-full overflow-y-auto;
+		@apply lg:relative lg:block lg:overflow-hidden;
 	}
 
-	/* Left sidebar wrapper — geometry recently tuned, preserved exactly. */
+	/* Left sidebar wrapper — geometry recently tuned, preserved exactly at lg. */
 	.sidebar {
-		@apply absolute left-0 top-0 w-1/4 h-full z-10 px-4 pt-8 pb-6 flex flex-col gap-6;
+		/* Mobile: static, full-width, normal flow. */
+		@apply flex flex-col gap-4 p-4 w-full;
+		/* Desktop (lg): restore `absolute left-0 top-0 w-1/4 h-full z-10 px-4 pt-8 pb-6 flex flex-col gap-6`. */
+		@apply lg:absolute lg:left-0 lg:top-0 lg:w-1/4 lg:h-full lg:z-10 lg:px-4 lg:pt-8 lg:pb-6 lg:gap-6;
 	}
 
 	/* Search box */
@@ -133,12 +139,19 @@
 		transform: scale(1.1);
 	}
 
-	/* Right quest tray wrapper — geometry recently tuned, preserved exactly. */
+	/* Right quest tray wrapper — geometry recently tuned, preserved exactly at lg. */
 	.tray {
-		@apply absolute left-1/4 right-4 top-4 bottom-0;
+		/* Mobile: static, full-width, sits below the sidebar in normal flow. */
+		@apply w-full p-4;
+		/* Desktop (lg): restore `absolute left-1/4 right-4 top-4 bottom-0`. The
+		   lg:w-auto resets the mobile w-full so left+right compute the width
+		   (otherwise width:100% would override `right` and overflow off-screen). */
+		@apply lg:absolute lg:left-1/4 lg:right-4 lg:top-4 lg:bottom-0 lg:w-auto lg:p-0;
 	}
 	.tray-inner {
 		@apply w-full h-full rounded-t-2xl bg-emerald-900/80 border-2 border-emerald-700/50 border-b-0 shadow-2xl backdrop-blur-sm p-6 overflow-y-auto;
+		/* Mobile: parent has no fixed height, so guarantee a visible tray/empty state. */
+		@apply min-h-[24rem] lg:min-h-0;
 	}
 	.quest-list {
 		@apply grid grid-cols-1 gap-4;

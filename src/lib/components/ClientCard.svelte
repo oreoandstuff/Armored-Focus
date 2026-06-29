@@ -763,19 +763,21 @@
 		@apply -ml-2;
 	}
 	.collapsed-grid {
-		@apply grid grid-cols-12 items-center gap-2;
+		/* Mobile: 6-col grid (Name / Score / Due only). lg: original 12-col. */
+		@apply grid grid-cols-6 items-center gap-2 lg:grid-cols-12;
 	}
 	.col-name {
-		@apply col-span-3 flex flex-col justify-center overflow-hidden;
+		@apply col-span-4 flex flex-col justify-center overflow-hidden lg:col-span-3;
 	}
 	.col-phone {
-		@apply col-span-2 flex flex-col justify-center overflow-hidden;
+		/* Secondary columns hidden on phones; restored at lg. */
+		@apply hidden lg:col-span-2 lg:flex lg:flex-col lg:justify-center lg:overflow-hidden;
 	}
 	.col-note {
-		@apply col-span-3 flex flex-col justify-center overflow-hidden;
+		@apply hidden lg:col-span-3 lg:flex lg:flex-col lg:justify-center lg:overflow-hidden;
 	}
 	.col-quest {
-		@apply col-span-2 flex flex-col justify-center overflow-hidden;
+		@apply hidden lg:col-span-2 lg:flex lg:flex-col lg:justify-center lg:overflow-hidden;
 	}
 	.col-score {
 		@apply col-span-1 flex flex-col justify-center text-center;
@@ -816,13 +818,14 @@
 		@apply relative rounded-lg border-4 shadow-xl transition-all duration-500;
 	}
 	.card-header {
-		@apply flex items-center justify-between border-b border-[#d4c5a9] bg-[#e8e4d9] p-2;
+		/* Mobile: allow buttons to wrap instead of overflowing. lg: original nowrap row. */
+		@apply flex flex-wrap items-center justify-between gap-2 border-b border-[#d4c5a9] bg-[#e8e4d9] p-2 lg:flex-nowrap lg:gap-0;
 	}
 	.header-left {
-		@apply flex items-center gap-4;
+		@apply flex flex-wrap items-center gap-2 lg:flex-nowrap lg:gap-4;
 	}
 	.header-actions {
-		@apply flex gap-2;
+		@apply flex flex-wrap gap-2 lg:flex-nowrap;
 	}
 	.type-label {
 		@apply rounded px-3 py-1 font-serif text-lg font-bold;
@@ -875,13 +878,16 @@
 
 	/* ---------- Body + columns ---------- */
 	.card-body {
-		@apply relative grid grid-cols-12 gap-6 p-6;
+		/* Mobile: single stacked column. lg: original 12-col split. */
+		@apply relative grid grid-cols-1 gap-6 p-4 lg:grid-cols-12 lg:p-6;
 	}
 	.left-col {
-		@apply col-span-5 max-h-[500px] space-y-4 overflow-y-auto border-r border-[#d4c5a9] pr-6;
+		/* Mobile: full-width, free-flowing (no fixed height / right border).
+		   lg: original 5-col scrollable details panel. */
+		@apply space-y-4 lg:col-span-5 lg:max-h-[500px] lg:overflow-y-auto lg:border-r lg:border-[#d4c5a9] lg:pr-6;
 	}
 	.right-col {
-		@apply col-span-7;
+		@apply lg:col-span-7;
 	}
 
 	/* ---------- Left column: identity + fields ---------- */

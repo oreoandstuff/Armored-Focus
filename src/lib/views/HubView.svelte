@@ -171,13 +171,13 @@
 
 <style lang="postcss">
 	.hub-grid {
-		@apply grid grid-cols-12 gap-8;
+		@apply grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-8;
 	}
 	.left-col {
-		@apply col-span-4 space-y-6;
+		@apply space-y-6 lg:col-span-4;
 	}
 	.right-col {
-		@apply col-span-8;
+		@apply lg:col-span-8;
 	}
 
 	/* HUB_THEME panel base + per-instance modifiers */
@@ -196,7 +196,7 @@
 
 	/* ---- File-select header (Level + name) ---- */
 	.level-header {
-		@apply flex items-center border-b border-blue-500/30 bg-blue-950/50 p-3;
+		@apply flex flex-wrap items-center gap-2 border-b border-blue-500/30 bg-blue-950/50 p-3 lg:flex-nowrap lg:gap-0;
 	}
 	.level-box {
 		@apply flex min-w-[80px] items-center justify-center rounded border-2 border-blue-400 bg-blue-900 px-3 py-1 shadow-inner;
@@ -371,7 +371,7 @@
 
 	/* ---- Active Quests column ---- */
 	.quests-header {
-		@apply mb-4 flex items-center justify-between;
+		@apply mb-4 flex flex-wrap items-center justify-between gap-2 lg:flex-nowrap lg:gap-0;
 	}
 	.quests-title {
 		@apply flex items-center gap-2 font-sans text-2xl font-bold text-blue-50 drop-shadow-md;

@@ -99,7 +99,7 @@
 <style lang="postcss">
 	/* Header */
 	.binder-head {
-		@apply mb-6 flex items-end justify-between border-b-4 border-purple-900/30 pb-4;
+		@apply mb-6 flex flex-col gap-4 border-b-4 border-purple-900/30 pb-4 lg:flex-row lg:items-end lg:justify-between lg:gap-0;
 	}
 	.head-left {
 		@apply flex items-center gap-4;
@@ -122,7 +122,7 @@
 
 	/* Header action buttons */
 	.head-actions {
-		@apply flex gap-2;
+		@apply flex flex-wrap gap-2;
 	}
 	.btn-booster,
 	.btn-draw {
@@ -154,7 +154,7 @@
 
 	/* Search + sort bar */
 	.search-bar {
-		@apply mb-6 flex items-center gap-4 rounded-xl border-2 border-purple-500/30 bg-purple-900/30 p-4 backdrop-blur-sm;
+		@apply mb-6 flex flex-col gap-4 rounded-xl border-2 border-purple-500/30 bg-purple-900/30 p-4 backdrop-blur-sm sm:flex-row sm:items-center;
 	}
 	.search {
 		@apply relative flex-1;

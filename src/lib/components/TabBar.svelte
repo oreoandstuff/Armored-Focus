@@ -51,9 +51,9 @@
 		@apply bg-[#2c241b] border-[#daa520];
 	}
 
-	/* Tab buttons base */
+	/* Tab buttons base — compact on phones, full size from sm up (desktop unchanged). */
 	.tab {
-		@apply px-8 py-3 font-serif font-bold text-lg transition-all border-t-4 mx-1 rounded-t-lg border-x border-b-0;
+		@apply px-3 py-2 text-sm sm:px-8 sm:py-3 sm:text-lg font-serif font-bold transition-all border-t-4 mx-0.5 sm:mx-1 rounded-t-lg border-x border-b-0;
 	}
 
 	/* Inactive per-tab colors */

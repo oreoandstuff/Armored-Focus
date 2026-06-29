@@ -34,7 +34,8 @@
 			</div>
 		</div>
 
-		<table class="level-table">
+		<div class="table-wrap">
+			<table class="level-table">
 			<thead class="table-head">
 				<tr>
 					<th>Level</th>
@@ -88,7 +89,8 @@
 					</tr>
 				{/each}
 			</tbody>
-		</table>
+			</table>
+		</div>
 
 		<button class="add-level" onclick={() => app.addRule('levels')}>+ Add Level</button>
 	</div>
@@ -131,6 +133,9 @@
 		@apply text-red-800;
 	}
 
+	.table-wrap {
+		@apply overflow-x-auto;
+	}
 	.level-table {
 		@apply mb-4 w-full text-left text-sm;
 	}

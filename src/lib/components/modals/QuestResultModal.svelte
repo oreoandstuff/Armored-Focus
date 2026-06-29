@@ -173,7 +173,7 @@
 
 <style lang="postcss">
 	.panel {
-		@apply w-full max-w-lg overflow-hidden rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-2xl;
+		@apply max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-2xl;
 	}
 	.panel-header {
 		@apply flex items-center justify-between border-b border-[#d4c5a9] p-4 text-white;

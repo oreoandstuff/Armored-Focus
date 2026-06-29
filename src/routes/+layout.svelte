@@ -70,6 +70,6 @@
 		@apply h-full w-full;
 	}
 	.view-container.padded {
-		@apply mx-auto max-w-7xl overflow-y-auto p-6;
+		@apply mx-auto max-w-7xl overflow-y-auto p-3 sm:p-6;
 	}
 </style>

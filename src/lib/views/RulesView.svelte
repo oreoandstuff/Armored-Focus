@@ -106,10 +106,10 @@
 
 <style lang="postcss">
 	.rules-page {
-		@apply grid grid-cols-2 gap-8 pb-20;
+		@apply grid grid-cols-1 gap-6 pb-20 lg:grid-cols-2 lg:gap-8;
 	}
 	.title-col {
-		@apply col-span-2;
+		@apply lg:col-span-2;
 	}
 	.page-title {
 		@apply text-3xl font-serif font-bold text-[#2c241b] mb-4 border-b-4 border-[#d4c5a9] pb-2;

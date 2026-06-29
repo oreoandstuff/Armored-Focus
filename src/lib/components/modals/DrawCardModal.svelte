@@ -323,7 +323,7 @@
 	}
 
 	.columns {
-		@apply grid grid-cols-2 gap-8;
+		@apply grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8;
 	}
 	.col {
 		@apply space-y-4 rounded border-2 border-stone-200 bg-stone-50/50 p-4 opacity-70 grayscale;
