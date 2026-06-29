@@ -8,6 +8,7 @@
 import type { Card, LogEntry, Rules, RulesKey, UserStats, View, SideKey } from './core/types';
 import { generateId } from './core/id';
 import { newCard, newStandaloneCard } from './core/card';
+import { initialRules, DEFAULT_USER_NAME } from './core/rules';
 import { awardExp } from './core/leveling';
 import {
 	startQuest as coreStartQuest,
@@ -69,9 +70,11 @@ const NO_MODALS: ModalState = {
 };
 
 class AppStore {
-	userStats = $state<UserStats>({ name: '', exp: 0, level: 1 });
+	// Safe defaults so any render before init() can't crash on undefined rule
+	// arrays. init() replaces these with the server-loaded state.
+	userStats = $state<UserStats>({ name: DEFAULT_USER_NAME, exp: 0, level: 1 });
 	cards = $state<Card[]>([]);
-	rules = $state<Rules>({} as Rules);
+	rules = $state<Rules>(structuredClone(initialRules));
 	dailyLog = $state<LogEntry[]>([]);
 	bonusProgress = $state<Record<string, number>>({});
 
