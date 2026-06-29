@@ -1,126 +1,171 @@
 <script lang="ts">
 	// Booster Pack modal (SPEC §2.5.2, §8) — CSV import wizard.
-	// Paste rows, choose a column count, map each column to a field type, import.
-	import { X } from '@lucide/svelte';
+	// Markup mirrors the React prototype's Booster Pack Modal (App.jsx 1865–1969):
+	// define the CSV structure (column count + per-column type), paste/drop rows,
+	// then import via the `app` store.
+	import { X, Database, FileText, FilePlus, Upload } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
-	import { THEME } from '$lib/theme';
 	import { BOOSTER_COLUMN_TYPES } from '$lib/core/rules';
 	import RPGButton from '$lib/components/RPGButton.svelte';
 
-	const inputStyle = `background: ${THEME.inputBg}; border-color: ${THEME.border}; color: ${THEME.text};`;
 	const DEFAULTS = ['Name', 'Phone', 'Address'];
 
 	let rawText = $state('');
-	let columnCount = $state(3);
+	let colCount = $state(3);
 	let columns = $state<string[]>([...DEFAULTS]);
+	let fileInput = $state<HTMLInputElement>();
 
 	$effect(() => {
 		if (app.modals.boosterPack) {
 			rawText = '';
-			columnCount = 3;
+			colCount = 3;
 			columns = [...DEFAULTS];
 		}
 	});
 
-	// Resize the column-mapping array whenever the count changes, keeping
-	// existing selections and defaulting new columns to 'Ignore'.
-	function setCount(n: number) {
-		const count = Math.max(1, Math.min(20, Math.floor(n) || 1));
-		columnCount = count;
+	// Resize the column-mapping array, keeping existing selections and
+	// defaulting any new columns to 'Ignore'.
+	function updateColCount(value: string | number) {
+		const count = Math.max(1, Math.min(20, Math.floor(Number(value)) || 1));
+		colCount = count;
 		const next = columns.slice(0, count);
 		while (next.length < count) next.push('Ignore');
 		columns = next;
 	}
 
-	// Live preview of the first non-empty parsed row.
-	const previewRow = $derived.by(() => {
-		const line = rawText.split('\n').map((l) => l.trim()).find((l) => l !== '');
-		if (!line) return [];
-		const fields = line.split(',').map((f) => f.trim());
-		return columns.map((type, i) => ({ type, value: fields[i] ?? '' }));
-	});
+	function readFile(file: File) {
+		const reader = new FileReader();
+		reader.onload = () => {
+			rawText = String(reader.result ?? '');
+		};
+		reader.readAsText(file);
+	}
 
-	function importPack() {
+	function handleFileUpload(e: Event) {
+		const file = (e.currentTarget as HTMLInputElement).files?.[0];
+		if (file) readFile(file);
+	}
+
+	function handleDrop(e: DragEvent) {
+		e.preventDefault();
+		const file = e.dataTransfer?.files?.[0];
+		if (file) readFile(file);
+	}
+
+	function processBoosterImport() {
 		app.importBooster(rawText, columns); // closes the modal itself
 	}
 </script>
 
 {#if app.modals.boosterPack}
 	<div
-		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur"
+		class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]"
 		role="dialog"
 		aria-modal="true"
-		aria-label="Booster Pack Import"
+		aria-label="Open Booster Pack"
 	>
 		<div
-			class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border-2 shadow-2xl"
-			style="background: {THEME.panel}; border-color: {THEME.border};"
+			class="bg-[#fdfbf7] rounded-lg shadow-xl border-4 border-[#d4c5a9] w-[90%] max-w-6xl flex flex-col max-h-[90vh]"
 		>
 			<div
-				class="flex items-center justify-between px-5 py-3"
-				style="background: {THEME.headerBg}; color: {THEME.headerText};"
+				class="bg-[#2c241b] text-[#f5deb3] p-4 border-b border-[#d4c5a9] flex justify-between items-center"
 			>
-				<h2 class="font-serif text-xl font-bold tracking-wide">Open a Booster Pack</h2>
-				<button onclick={() => app.closeModals()} aria-label="Close" class="hover:brightness-125">
-					<X size={22} />
-				</button>
+				<h3 class="font-serif font-bold text-xl">Open Booster Pack (Import)</h3>
+				<button onclick={() => app.closeModals()} class="hover:text-white" aria-label="Close"><X /></button>
 			</div>
 
-			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<label for="booster-raw" class="mb-1 block text-sm font-bold">Paste rows (one card per line, comma-separated)</label>
-				<textarea
-					id="booster-raw"
-					rows="5"
-					class="w-full rounded border px-2 py-1 font-mono text-sm"
-					style={inputStyle}
-					placeholder="Andrew Leui, 555-0199, 123 Maple Dr"
-					bind:value={rawText}
-				></textarea>
+			<div class="p-6 overflow-y-auto flex-1">
+				<!-- Section 1: Define Structure -->
+				<div class="mb-6 border-b border-[#d4c5a9] pb-6">
+					<h4 class="font-bold text-[#8b4513] mb-4 flex items-center gap-2">
+						<Database size={18} /> 1. Define CSV Structure
+					</h4>
 
-				<label for="booster-cols" class="mb-1 mt-4 block text-sm font-bold">Number of columns</label>
-				<input
-					id="booster-cols"
-					type="number"
-					min="1"
-					max="20"
-					class="w-24 rounded border px-2 py-1"
-					style={inputStyle}
-					value={columnCount}
-					oninput={(e) => setCount(Number(e.currentTarget.value))}
-				/>
+					<div class="flex items-center gap-4 mb-4">
+						<label class="text-sm font-bold text-stone-600" for="booster-colcount"
+							>How many columns in your file?</label
+						>
+						<input
+							id="booster-colcount"
+							type="number"
+							min="1"
+							max="20"
+							class="w-16 p-2 border border-[#d4c5a9] rounded text-center font-bold"
+							value={colCount}
+							oninput={(e) => updateColCount(e.currentTarget.value)}
+						/>
+					</div>
 
-				<p class="mb-2 mt-4 text-sm font-bold">Map each column</p>
-				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-					{#each columns as _, i (i)}
-						<label class="flex items-center gap-2 text-sm">
-							<span class="w-16 shrink-0 opacity-70">Col {i + 1}</span>
-							<select class="flex-1 rounded border px-2 py-1" style={inputStyle} bind:value={columns[i]}>
-								{#each BOOSTER_COLUMN_TYPES as t}
-									<option value={t}>{t}</option>
-								{/each}
-							</select>
-						</label>
-					{/each}
-				</div>
-
-				{#if previewRow.length > 0}
-					<p class="mb-1 mt-4 text-sm font-bold">Preview (first row)</p>
-					<div
-						class="rounded border p-3 text-sm"
-						style="background: {THEME.inputBg}; border-color: {THEME.border};"
-					>
-						{#each previewRow as cell}
-							{#if cell.type !== 'Ignore'}
-								<div><span class="font-bold">{cell.type}:</span> {cell.value || '—'}</div>
-							{/if}
+					<div class="grid grid-cols-6 gap-4">
+						{#each columns as _, idx (idx)}
+							<div class="bg-white p-2 rounded border border-[#d4c5a9]">
+								<div class="text-[10px] font-bold text-stone-400 uppercase mb-1">Column {idx + 1}</div>
+								<select
+									class="w-full p-1 text-sm border-none focus:ring-0 bg-transparent font-bold text-[#2c241b]"
+									aria-label="Column {idx + 1} type"
+									bind:value={columns[idx]}
+								>
+									{#each BOOSTER_COLUMN_TYPES as type}
+										<option value={type}>{type === 'Ignore' ? 'Ignore Column' : type}</option>
+									{/each}
+								</select>
+							</div>
 						{/each}
 					</div>
-				{/if}
+				</div>
+
+				<!-- Section 2: Paste Data -->
+				<div>
+					<h4 class="font-bold text-[#8b4513] mb-2 flex items-center gap-2">
+						<FileText size={18} /> 2. Paste CSV Data
+					</h4>
+					<p class="text-xs text-stone-500 mb-2">Drag &amp; Drop file below.</p>
+
+					<!-- Drag & Drop Zone -->
+					<div
+						class="border-2 border-dashed border-[#d4c5a9] bg-stone-50 rounded-lg p-6 mb-3 text-center cursor-pointer hover:bg-stone-100 transition-colors"
+						role="button"
+						tabindex="0"
+						onclick={() => fileInput?.click()}
+						onkeydown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								fileInput?.click();
+							}
+						}}
+						ondrop={handleDrop}
+						ondragover={(e) => e.preventDefault()}
+					>
+						<input
+							type="file"
+							bind:this={fileInput}
+							class="hidden"
+							accept=".csv,.txt"
+							onchange={handleFileUpload}
+						/>
+						<FilePlus size={32} class="mx-auto text-stone-400 mb-2" />
+						<p class="text-sm font-bold text-stone-600">Drag &amp; Drop CSV file here</p>
+						<p class="text-xs text-stone-400">or click to browse computer</p>
+					</div>
+
+					<textarea
+						class="w-full h-32 border border-[#d4c5a9] p-3 text-xs font-mono bg-white rounded focus:border-[#8b4513] focus:outline-none resize-none shadow-inner"
+						placeholder="Example Row: Andrew Leui, 555-0199, 123 Maple Dr"
+						bind:value={rawText}
+					></textarea>
+				</div>
 			</div>
 
-			<div class="flex justify-end gap-2 border-t px-5 py-3" style="border-color: {THEME.border};">
-				<RPGButton variant="primary" onclick={() => app.closeModals()}>Cancel</RPGButton>
-				<RPGButton variant="action" disabled={rawText.trim() === ''} onclick={importPack}>Import</RPGButton>
+			<div class="p-4 bg-[#e8e4d9] border-t border-[#d4c5a9] flex justify-end gap-3">
+				<button
+					onclick={() => app.closeModals()}
+					class="px-4 py-2 text-stone-600 font-bold hover:text-stone-800"
+				>
+					Cancel
+				</button>
+				<RPGButton variant="action" onclick={processBoosterImport} disabled={!rawText.trim()}>
+					<Upload size={16} class="inline mr-2" /> Import Data
+				</RPGButton>
 			</div>
 		</div>
 	</div>

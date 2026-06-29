@@ -1,17 +1,23 @@
 <script lang="ts">
 	// Draw Card modal (SPEC §2.5.1, §3.1) — create a new client/business card.
 	// Self-gates on `app.modals.drawCard` and writes to the `app` store directly.
-	import { X } from '@lucide/svelte';
+	// Markup mirrors the React prototype's Draw Card Modal (App.jsx 1758–1864).
+	import { X, UserPlus, Briefcase } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
-	import { THEME } from '$lib/theme';
-	import { RESIDENCE_OPTIONS, OCCUPANCY_OPTIONS } from '$lib/core/rules';
+	import {
+		RESIDENCE_OPTIONS,
+		OCCUPANCY_OPTIONS,
+		CLIENT_LOB_OPTIONS,
+		CLIENT_CARRIER_OPTIONS,
+		BUSINESS_LOB_OPTIONS,
+		BUSINESS_CARRIER_OPTIONS
+	} from '$lib/core/rules';
 	import type { Card, ResidenceType, Occupancy } from '$lib/core/types';
 	import RPGButton from '$lib/components/RPGButton.svelte';
 
-	const inputStyle = `background: ${THEME.inputBg}; border-color: ${THEME.border}; color: ${THEME.text};`;
-	const CARD_TYPES = ['Client', 'Business'] as const;
+	let primarySide = $state<'Client' | 'Business'>('Client');
 
-	let cardType = $state<'Client' | 'Business'>('Client');
+	// Client-side fields
 	let name = $state('');
 	let phone = $state('');
 	let email = $state('');
@@ -19,18 +25,32 @@
 	let mailingAddress = $state('');
 	let dob = $state('');
 	let license = $state('');
-	let residence = $state<ResidenceType>('Homeowner');
+	let residenceType = $state<ResidenceType>('Homeowner');
+	let clientLob = $state<string[]>([]);
+	let clientCarriers = $state<string[]>([]);
 
-	// Business-only fields
+	// Business-side fields
 	let businessName = $state('');
+	let businessPhone = $state('');
 	let ein = $state('');
 	let established = $state('');
 	let occupancy = $state<Occupancy>('Own');
+	let businessLob = $state<string[]>([]);
+	let businessCarriers = $state<string[]>([]);
+
+	// Card-level flags
+	let isCOI = $state(false);
+	let isBNI = $state(false);
+
+	/** Toggle membership of `value` in a selection array (mutating the $state ref). */
+	function toggle(arr: string[], value: string): string[] {
+		return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+	}
 
 	// Reset the form whenever the modal opens.
 	$effect(() => {
 		if (app.modals.drawCard) {
-			cardType = 'Client';
+			primarySide = 'Client';
 			name = '';
 			phone = '';
 			email = '';
@@ -38,17 +58,24 @@
 			mailingAddress = '';
 			dob = '';
 			license = '';
-			residence = 'Homeowner';
+			residenceType = 'Homeowner';
+			clientLob = [];
+			clientCarriers = [];
 			businessName = '';
+			businessPhone = '';
 			ein = '';
 			established = '';
 			occupancy = 'Own';
+			businessLob = [];
+			businessCarriers = [];
+			isCOI = false;
+			isBNI = false;
 		}
 	});
 
-	function save() {
+	function saveNewCard() {
 		const partial: Partial<Card> = {
-			primarySide: cardType,
+			primarySide,
 			name: name.trim(),
 			phone,
 			email,
@@ -56,140 +83,294 @@
 			mailingAddress,
 			dob,
 			license,
-			residenceType: residence
-		};
-		if (cardType === 'Business') {
-			partial.businessSide = {
+			residenceType,
+			isCOI,
+			isBNI,
+			clientSide: {
 				notes: [],
 				logs: [],
 				quests: [],
-				lob: [],
-				carriers: [],
+				lob: clientLob,
+				carriers: clientCarriers
+			},
+			businessSide: {
+				notes: [],
+				logs: [],
+				quests: [],
+				lob: businessLob,
+				carriers: businessCarriers,
 				businessName,
-				phone: '',
+				phone: businessPhone,
 				ein,
 				established,
 				occupancy
-			};
-		}
+			}
+		};
 		app.drawCard(partial); // drawCard closes the modal itself
 	}
 </script>
 
 {#if app.modals.drawCard}
 	<div
-		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur"
+		class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] backdrop-blur-sm"
 		role="dialog"
 		aria-modal="true"
-		aria-label="Draw Card"
+		aria-label="Draw New Card"
 	>
 		<div
-			class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg border-2 shadow-2xl"
-			style="background: {THEME.panel}; border-color: {THEME.border};"
+			class="bg-[#fdfbf7] w-full max-w-4xl rounded-lg shadow-2xl border-4 border-[#d4c5a9] max-h-[90vh] overflow-y-auto"
 		>
-			<!-- Leather header -->
 			<div
-				class="flex items-center justify-between px-5 py-3"
-				style="background: {THEME.headerBg}; color: {THEME.headerText};"
+				class="bg-[#2c241b] text-[#f5deb3] p-4 border-b border-[#d4c5a9] flex justify-between items-center"
 			>
-				<h2 class="font-serif text-xl font-bold tracking-wide">Draw a New Card</h2>
-				<button onclick={() => app.closeModals()} aria-label="Close" class="hover:brightness-125">
-					<X size={22} />
-				</button>
+				<h3 class="font-serif font-bold text-xl">Draw New Card</h3>
+				<button onclick={() => app.closeModals()} aria-label="Close"><X /></button>
 			</div>
+			<div class="p-6 space-y-4">
+				<!-- Side Selection -->
+				<div class="flex gap-4 mb-4">
+					<button
+						onclick={() => (primarySide = 'Client')}
+						class="flex-1 py-3 font-bold border-2 rounded {primarySide === 'Client'
+							? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+							: 'border-stone-200 text-stone-400'}">Client Side (Front)</button
+					>
+					<button
+						onclick={() => (primarySide = 'Business')}
+						class="flex-1 py-3 font-bold border-2 rounded {primarySide === 'Business'
+							? 'border-blue-600 bg-blue-50 text-blue-800'
+							: 'border-stone-200 text-stone-400'}">Business Side (Back)</button
+					>
+				</div>
+				<p class="text-xs text-center font-bold text-stone-500 italic mb-2">
+					The selected tab above determines which side will be the PRIMARY side when added to the
+					binder.
+				</p>
 
-			<!-- Body -->
-			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<!-- Card type toggle -->
-				<div class="mb-4 flex gap-2">
-					{#each CARD_TYPES as t}
-						<button
-							onclick={() => (cardType = t)}
-							class="flex-1 rounded border-2 py-2 font-serif font-bold transition"
-							style="border-color: {THEME.border}; {cardType === t
-								? `background: ${THEME.accent}; color: #fff;`
-								: `background: ${THEME.inputBg}; color: ${THEME.text};`}"
+				<div class="grid grid-cols-2 gap-8">
+					<!-- Client Side Column -->
+					<div
+						class="space-y-4 p-4 rounded border-2 {primarySide === 'Client'
+							? 'border-emerald-500 bg-emerald-50/50'
+							: 'border-stone-200 bg-stone-50/50 grayscale opacity-70'}"
+					>
+						<h4
+							class="font-bold text-lg text-emerald-800 border-b border-emerald-200 pb-2 mb-2 flex items-center gap-2"
 						>
-							{t} Card
-						</button>
-					{/each}
-				</div>
+							<UserPlus size={18} /> Client Details
+						</h4>
 
-				<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Name
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={name} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Phone
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={phone} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Email
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={email} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Date of Birth
-						<input type="date" class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={dob} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Address
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={address} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Mailing Address
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={mailingAddress} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Driver's License #
-						<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={license} />
-					</label>
-					<label class="flex flex-col gap-1 text-sm font-bold">
-						Residence
-						<select class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={residence}>
-							{#each RESIDENCE_OPTIONS as r}
-								<option value={r}>{r}</option>
-							{/each}
-						</select>
-					</label>
-				</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-name">Name</label>
+							<input
+								id="dc-name"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={name}
+								placeholder="Primary Client Name"
+							/>
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-phone">Phone</label>
+							<input
+								id="dc-phone"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={phone}
+								placeholder="Personal Phone"
+							/>
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-email">Email</label>
+							<input id="dc-email" class="w-full border p-2 rounded bg-white" bind:value={email} />
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-address">Address</label>
+							<input id="dc-address" class="w-full border p-2 rounded bg-white" bind:value={address} />
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-mailing"
+								>Mailing Address</label
+							>
+							<input
+								id="dc-mailing"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={mailingAddress}
+							/>
+						</div>
 
-				{#if cardType === 'Business'}
-					<h3 class="mb-2 mt-5 font-serif text-lg font-bold" style="color: {THEME.accent};">
-						Business Details
-					</h3>
-					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-						<label class="flex flex-col gap-1 text-sm font-bold">
-							Business Name
-							<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={businessName} />
-						</label>
-						<label class="flex flex-col gap-1 text-sm font-bold">
-							EIN
-							<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={ein} />
-						</label>
-						<label class="flex flex-col gap-1 text-sm font-bold">
-							Established
-							<input class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={established} />
-						</label>
-						<label class="flex flex-col gap-1 text-sm font-bold">
-							Occupancy
-							<select class="rounded border px-2 py-1 font-normal" style={inputStyle} bind:value={occupancy}>
+						<div class="grid grid-cols-2 gap-2">
+							<div>
+								<label class="text-xs font-bold uppercase text-stone-500" for="dc-dob">DOB</label>
+								<input
+									id="dc-dob"
+									class="w-full border p-2 rounded bg-white"
+									type="date"
+									bind:value={dob}
+								/>
+							</div>
+							<div>
+								<label class="text-xs font-bold uppercase text-stone-500" for="dc-license"
+									>License #</label
+								>
+								<input id="dc-license" class="w-full border p-2 rounded bg-white" bind:value={license} />
+							</div>
+						</div>
+
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-residence">Residence</label>
+							<select
+								id="dc-residence"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={residenceType}
+							>
+								{#each RESIDENCE_OPTIONS as r}
+									<option value={r}>{r}</option>
+								{/each}
+							</select>
+						</div>
+
+						<!-- Client LoB Selection -->
+						<div class="mt-4">
+							<label class="text-xs font-bold uppercase text-stone-500 block mb-1"
+								>Client Lines of Business</label
+							>
+							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
+								{#each CLIENT_LOB_OPTIONS as lob}
+									<label class="flex items-center gap-1 text-[10px]">
+										<input
+											type="checkbox"
+											checked={clientLob.includes(lob)}
+											onchange={() => (clientLob = toggle(clientLob, lob))}
+										/>
+										{lob}
+									</label>
+								{/each}
+							</div>
+						</div>
+						<div class="mt-2">
+							<label class="text-xs font-bold uppercase text-stone-500 block mb-1">Client Carriers</label>
+							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
+								{#each CLIENT_CARRIER_OPTIONS as c}
+									<label class="flex items-center gap-1 text-[10px]">
+										<input
+											type="checkbox"
+											checked={clientCarriers.includes(c)}
+											onchange={() => (clientCarriers = toggle(clientCarriers, c))}
+										/>
+										{c}
+									</label>
+								{/each}
+							</div>
+						</div>
+					</div>
+
+					<!-- Business Side Column -->
+					<div
+						class="space-y-4 p-4 rounded border-2 {primarySide === 'Business'
+							? 'border-blue-500 bg-blue-50/50'
+							: 'border-stone-200 bg-stone-50/50 grayscale opacity-70'}"
+					>
+						<h4
+							class="font-bold text-lg text-blue-800 border-b border-blue-200 pb-2 mb-2 flex items-center gap-2"
+						>
+							<Briefcase size={18} /> Business Details
+						</h4>
+
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-bizname"
+								>Business Name</label
+							>
+							<input
+								id="dc-bizname"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={businessName}
+								placeholder="Company Name"
+							/>
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-bizphone"
+								>Business Phone</label
+							>
+							<input
+								id="dc-bizphone"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={businessPhone}
+								placeholder="Work Phone"
+							/>
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-ein">EIN</label>
+							<input id="dc-ein" class="w-full border p-2 rounded bg-white" bind:value={ein} />
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-occupancy">Occupancy</label>
+							<select
+								id="dc-occupancy"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={occupancy}
+							>
 								{#each OCCUPANCY_OPTIONS as o}
 									<option value={o}>{o}</option>
 								{/each}
 							</select>
-						</label>
-					</div>
-				{/if}
-			</div>
+						</div>
+						<div>
+							<label class="text-xs font-bold uppercase text-stone-500" for="dc-est">Est.</label>
+							<input
+								id="dc-est"
+								class="w-full border p-2 rounded bg-white"
+								bind:value={established}
+								placeholder="Year"
+							/>
+						</div>
 
-			<!-- Footer -->
-			<div
-				class="flex justify-end gap-2 border-t px-5 py-3"
-				style="border-color: {THEME.border};"
-			>
-				<RPGButton variant="primary" onclick={() => app.closeModals()}>Cancel</RPGButton>
-				<RPGButton variant="action" disabled={name.trim() === ''} onclick={save}>Draw Card</RPGButton>
+						<!-- Business LoB Selection -->
+						<div class="mt-4">
+							<label class="text-xs font-bold uppercase text-stone-500 block mb-1">Business Lines</label>
+							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
+								{#each BUSINESS_LOB_OPTIONS as lob}
+									<label class="flex items-center gap-1 text-[10px]">
+										<input
+											type="checkbox"
+											checked={businessLob.includes(lob)}
+											onchange={() => (businessLob = toggle(businessLob, lob))}
+										/>
+										{lob}
+									</label>
+								{/each}
+							</div>
+						</div>
+						<div class="mt-2">
+							<label class="text-xs font-bold uppercase text-stone-500 block mb-1"
+								>Business Carriers</label
+							>
+							<div class="grid grid-cols-2 gap-1 border p-2 bg-white rounded">
+								{#each BUSINESS_CARRIER_OPTIONS as c}
+									<label class="flex items-center gap-1 text-[10px]">
+										<input
+											type="checkbox"
+											checked={businessCarriers.includes(c)}
+											onchange={() => (businessCarriers = toggle(businessCarriers, c))}
+										/>
+										{c}
+									</label>
+								{/each}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex gap-4 border-t pt-4">
+					<label class="flex items-center gap-2 text-sm font-bold">
+						<input type="checkbox" bind:checked={isCOI} /> COI (Center of Influence)
+					</label>
+					<label class="flex items-center gap-2 text-sm font-bold">
+						<input type="checkbox" bind:checked={isBNI} /> BNI Member
+					</label>
+				</div>
+
+				<div class="flex justify-end pt-4 border-t border-stone-200">
+					<RPGButton variant="gold" onclick={saveNewCard}>Add to Binder</RPGButton>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,135 +1,107 @@
 <script lang="ts">
 	// Level Table modal (SPEC §2.5.3, §4.1) — edit level progression and the
 	// universal level rewards. Reads/writes app.rules via the rule editor API.
-	import { X, Plus, Trash2 } from '@lucide/svelte';
+	// Markup matches the React prototype's "Level Progression" modal 1:1.
+	import { X, Trash2 } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
-	import { THEME } from '$lib/theme';
-	import RPGButton from '$lib/components/RPGButton.svelte';
-
-	const inputStyle = `background: ${THEME.inputBg}; border-color: ${THEME.border}; color: ${THEME.text};`;
 </script>
 
 {#if app.modals.levelTable}
-	<div
-		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Level Table"
-	>
+	<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] z-50">
 		<div
-			class="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border-2 shadow-2xl"
-			style="background: {THEME.panel}; border-color: {THEME.border};"
+			class="bg-[#fdfbf7] p-8 rounded-lg shadow-2xl border-4 border-[#d4c5a9] max-w-2xl w-full max-h-[90vh] overflow-y-auto"
 		>
-			<div
-				class="flex items-center justify-between px-5 py-3"
-				style="background: {THEME.headerBg}; color: {THEME.headerText};"
-			>
-				<h2 class="font-serif text-xl font-bold tracking-wide">Level Progression</h2>
-				<button onclick={() => app.closeModals()} aria-label="Close" class="hover:brightness-125">
-					<X size={22} />
-				</button>
+			<div class="flex justify-between items-center mb-6 border-b border-[#d4c5a9] pb-4">
+				<h3 class="font-serif font-bold text-2xl text-[#2c241b]">Level Progression</h3>
+				<button onclick={() => app.closeModals()} aria-label="Close"><X /></button>
 			</div>
 
-			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<!-- Levels table -->
-				<div class="mb-2 flex items-center justify-between">
-					<h3 class="font-serif text-lg font-bold" style="color: {THEME.accent};">Levels</h3>
-					<button
-						onclick={() => app.addRule('levels')}
-						class="flex items-center gap-1 rounded border px-2 py-1 font-serif text-sm font-bold hover:brightness-110"
-						style="border-color: {THEME.goldBorder}; color: {THEME.accent};"
-					>
-						<Plus size={14} /> Add Level
-					</button>
-				</div>
-
-				<div
-					class="grid grid-cols-[4rem_6rem_1fr_1fr_auto] gap-2 px-1 pb-1 text-xs font-bold uppercase tracking-wide opacity-70"
-				>
-					<span>Level</span>
-					<span>Exp</span>
-					<span>Title</span>
-					<span>Reward</span>
-					<span class="sr-only">Actions</span>
-				</div>
-
-				{#each app.rules.levels ?? [] as lvl (lvl.id)}
-					<div class="grid grid-cols-[4rem_6rem_1fr_1fr_auto] items-center gap-2 px-1 py-1">
-						<input
-							type="number"
-							class="w-full rounded border px-2 py-1 text-right font-mono text-sm"
-							style={inputStyle}
-							value={lvl.level}
-							oninput={(e) =>
-								app.updateRule('levels', lvl.id, 'level', e.currentTarget.value === '' ? 0 : Number(e.currentTarget.value))}
-						/>
-						<input
-							type="number"
-							class="w-full rounded border px-2 py-1 text-right font-mono text-sm"
-							style={inputStyle}
-							value={lvl.exp}
-							oninput={(e) =>
-								app.updateRule('levels', lvl.id, 'exp', e.currentTarget.value === '' ? 0 : Number(e.currentTarget.value))}
-						/>
-						<input
-							type="text"
-							class="w-full rounded border px-2 py-1 text-sm"
-							style={inputStyle}
-							value={lvl.title}
-							oninput={(e) => app.updateRule('levels', lvl.id, 'title', e.currentTarget.value)}
-						/>
-						<input
-							type="text"
-							class="w-full rounded border px-2 py-1 text-sm"
-							style={inputStyle}
-							value={lvl.reward}
-							oninput={(e) => app.updateRule('levels', lvl.id, 'reward', e.currentTarget.value)}
-						/>
-						<button
-							onclick={() => app.deleteRule('levels', lvl.id)}
-							aria-label="Delete level {lvl.level}"
-							class="rounded p-1 text-red-700 hover:bg-red-100"
-						>
-							<Trash2 size={16} />
-						</button>
-					</div>
-				{/each}
-
-				<!-- Universal rewards -->
-				<div class="mb-2 mt-6 flex items-center justify-between">
-					<h3 class="font-serif text-lg font-bold" style="color: {THEME.accent};">Universal Level Rewards</h3>
+			<!-- Universal Rewards -->
+			<div class="mb-8 bg-[#e8e4d9] p-4 rounded border border-[#d4c5a9]">
+				<div class="flex justify-between items-center mb-2">
+					<h4 class="font-bold text-[#8b4513] uppercase text-sm">Universal Level Up Rewards</h4>
 					<button
 						onclick={() => app.addRule('universalLevelRewards')}
-						class="flex items-center gap-1 rounded border px-2 py-1 font-serif text-sm font-bold hover:brightness-110"
-						style="border-color: {THEME.goldBorder}; color: {THEME.accent};"
+						class="text-xs bg-[#2c241b] text-[#f5deb3] px-2 py-1 rounded">+ Add</button
 					>
-						<Plus size={14} /> Add Reward
-					</button>
 				</div>
-
-				{#each app.rules.universalLevelRewards ?? [] as rew (rew.id)}
-					<div class="grid grid-cols-[1fr_auto] items-center gap-2 px-1 py-1">
-						<input
-							type="text"
-							class="w-full rounded border px-2 py-1 text-sm"
-							style={inputStyle}
-							value={rew.name}
-							oninput={(e) => app.updateRule('universalLevelRewards', rew.id, 'name', e.currentTarget.value)}
-						/>
-						<button
-							onclick={() => app.deleteRule('universalLevelRewards', rew.id)}
-							aria-label="Delete reward {rew.name}"
-							class="rounded p-1 text-red-700 hover:bg-red-100"
+				<div class="space-y-2">
+					{#each app.rules.universalLevelRewards ?? [] as r (r.id)}
+						<div
+							class="flex justify-between items-center bg-white p-2 rounded border border-[#d4c5a9]"
 						>
-							<Trash2 size={16} />
-						</button>
-					</div>
-				{/each}
+							<span class="text-sm font-bold text-[#2c241b]">{r.name}</span>
+							<button
+								onclick={() => app.deleteRule('universalLevelRewards', r.id)}
+								aria-label="Delete reward"
+								class="text-red-800"><Trash2 size={14} /></button
+							>
+						</div>
+					{/each}
+				</div>
 			</div>
 
-			<div class="flex justify-end gap-2 border-t px-5 py-3" style="border-color: {THEME.border};">
-				<RPGButton variant="primary" onclick={() => app.closeModals()}>Done</RPGButton>
-			</div>
+			<table class="w-full text-sm text-left mb-4">
+				<thead class="bg-[#e8e4d9] font-bold">
+					<tr>
+						<th class="p-2">Level</th>
+						<th class="p-2">Title</th>
+						<th class="p-2">Exp Required</th>
+						<th class="p-2">Reward</th>
+						<th class="p-2"></th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each app.rules.levels ?? [] as l (l.id)}
+						<tr class="border-b border-stone-200">
+							<td class="p-2 font-bold">{l.level}</td>
+							<td class="p-2">
+								<input
+									class="w-full bg-transparent border-b border-stone-300 focus:outline-none italic text-[#5d4037]"
+									aria-label="Level {l.level} title"
+									value={l.title}
+									oninput={(e) => app.updateRule('levels', l.id, 'title', e.currentTarget.value)}
+								/>
+							</td>
+							<td class="p-2">
+								<input
+									class="w-16 bg-transparent border-b border-stone-300 focus:outline-none"
+									aria-label="Level {l.level} exp required"
+									value={l.exp}
+									oninput={(e) =>
+										app.updateRule(
+											'levels',
+											l.id,
+											'exp',
+											e.currentTarget.value === '' ? 0 : Number(e.currentTarget.value)
+										)}
+								/>
+							</td>
+							<td class="p-2">
+								<input
+									class="w-full bg-transparent border-b border-stone-300 focus:outline-none font-bold text-[#8b4513]"
+									aria-label="Level {l.level} reward"
+									value={l.reward}
+									oninput={(e) => app.updateRule('levels', l.id, 'reward', e.currentTarget.value)}
+								/>
+							</td>
+							<td class="p-2 text-right">
+								<button
+									onclick={() => app.deleteRule('levels', l.id)}
+									aria-label="Delete level {l.level}"
+									class="text-stone-400 hover:text-red-800"><Trash2 size={14} /></button
+								>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+
+			<button
+				onclick={() => app.addRule('levels')}
+				class="w-full py-2 bg-[#2c241b] text-[#f5deb3] rounded font-bold hover:bg-[#3e3226]"
+				>+ Add Level</button
+			>
 		</div>
 	</div>
 {/if}

@@ -1,12 +1,9 @@
 <script lang="ts">
 	// Merge Cards modal (SPEC §2.5.6) — merge another card (the source) into the
 	// target (app.flowCardId). The source is combined in and then removed.
-	import { X, Merge } from '@lucide/svelte';
+	// Markup matches the React prototype's "Merge Cards" modal 1:1.
 	import { app } from '$lib/state.svelte';
-	import { THEME } from '$lib/theme';
 	import RPGButton from '$lib/components/RPGButton.svelte';
-
-	const inputStyle = `background: ${THEME.inputBg}; border-color: ${THEME.border}; color: ${THEME.text};`;
 
 	let sourceId = $state('');
 
@@ -30,58 +27,45 @@
 </script>
 
 {#if app.modals.mergeCard}
-	<div
-		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Merge Cards"
-	>
-		<div
-			class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border-2 shadow-2xl"
-			style="background: {THEME.panel}; border-color: {THEME.border};"
-		>
-			<div
-				class="flex items-center justify-between px-5 py-3"
-				style="background: {THEME.headerBg}; color: {THEME.headerText};"
-			>
-				<h2 class="flex items-center gap-2 font-serif text-xl font-bold tracking-wide">
-					<Merge size={20} /> Merge Cards
-				</h2>
-				<button onclick={() => app.closeModals()} aria-label="Close" class="hover:brightness-125">
-					<X size={22} />
-				</button>
-			</div>
+	<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
+		<div class="bg-[#fdfbf7] rounded-lg shadow-xl border-4 border-[#d4c5a9] w-[90%] max-w-lg p-6">
+			<h3 class="font-serif font-bold text-xl mb-4 text-[#2c241b]">Merge Cards</h3>
+			<p class="text-sm text-stone-600 mb-4">
+				Select a card to merge INTO <span class="font-bold text-[#8b4513]"
+					>{target?.name || 'Current Card'}</span
+				>. The selected card below will be deleted, and its data (Logs, Notes, Quests) will be moved
+				to the current card.
+			</p>
 
-			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<p class="mb-4 text-sm">
-					Merging into <span class="font-serif font-bold">{target?.name ?? 'this card'}</span>.
-				</p>
-
-				<label for="merge-source" class="mb-1 block text-sm font-bold">Card to merge in (source)</label>
-				{#if candidates.length === 0}
-					<p class="text-sm italic opacity-70">No other cards available to merge.</p>
-				{:else}
-					<select id="merge-source" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={sourceId}>
-						<option value="" disabled>Select a card…</option>
-						{#each candidates as c (c.id)}
-							<option value={c.id}>{c.name} ({c.primarySide})</option>
-						{/each}
-					</select>
-				{/if}
-
-				<p
-					class="rounded border p-3 text-sm"
-					style="background: {THEME.inputBg}; border-color: {THEME.goldBorder};"
+			<div class="mb-4">
+				<label for="merge-source" class="block text-xs font-bold text-stone-500 uppercase mb-1"
+					>Select Card to Absorb</label
 				>
-					⚠ The selected card's quests, notes, logs, lines of business and carriers will be merged
-					into <span class="font-bold">{target?.name ?? 'the target'}</span>, and the source card
-					will be permanently removed.
-				</p>
+				<select
+					id="merge-source"
+					class="w-full p-2 border border-[#d4c5a9] rounded bg-white"
+					bind:value={sourceId}
+				>
+					<option value="">-- Select Card --</option>
+					{#each candidates as c (c.id)}
+						<option value={c.id}>
+							{c.name}
+							{c.businessSide?.businessName ? `(${c.businessSide.businessName})` : ''}
+						</option>
+					{/each}
+				</select>
 			</div>
 
-			<div class="flex justify-end gap-2 border-t px-5 py-3" style="border-color: {THEME.border};">
-				<RPGButton variant="primary" onclick={() => app.closeModals()}>Cancel</RPGButton>
-				<RPGButton variant="danger" disabled={sourceId === ''} onclick={merge}>Merge</RPGButton>
+			<div class="flex justify-end gap-3 pt-4 border-t border-[#d4c5a9]">
+				<button
+					onclick={() => app.closeModals()}
+					class="px-4 py-2 text-stone-600 font-bold hover:text-stone-800"
+				>
+					Cancel
+				</button>
+				<RPGButton variant="danger" onclick={merge} disabled={!sourceId}>
+					Merge & Delete Source
+				</RPGButton>
 			</div>
 		</div>
 	</div>

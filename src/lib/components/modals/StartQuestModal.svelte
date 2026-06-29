@@ -1,22 +1,24 @@
 <script lang="ts">
 	// Start Quest modal (SPEC §2.5.4, §4.4) — start a card quest, or a standalone
-	// task when app.flowStandalone is set. Quest type drives baseExp.
+	// task when app.flowStandalone is set. Visually matches the React prototype's
+	// "Start New Quest / Start Standalone Quest" modal.
 	import { X } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
-	import { THEME } from '$lib/theme';
 	import { todayISO } from '$lib/core/dates';
 	import RPGButton from '$lib/components/RPGButton.svelte';
-
-	const inputStyle = `background: ${THEME.inputBg}; border-color: ${THEME.border}; color: ${THEME.text};`;
 
 	let typeId = $state('');
 	let dueDate = $state(todayISO());
 	let note = $state('');
 
+	const isStandalone = $derived(app.flowStandalone);
 	const questTypes = $derived(
-		app.flowStandalone ? (app.rules.standaloneQuestTypes ?? []) : (app.rules.cardQuestTypes ?? [])
+		isStandalone ? (app.rules.standaloneQuestTypes ?? []) : (app.rules.cardQuestTypes ?? [])
 	);
 	const selected = $derived(questTypes.find((q) => q.id === typeId));
+
+	const card = $derived(app.cards.find((c) => c.id === app.flowCardId));
+	const activeSide = $derived(app.flowSide === 'businessSide' ? 'Business' : 'Client');
 
 	$effect(() => {
 		if (app.modals.startQuest) {
@@ -26,14 +28,14 @@
 		}
 	});
 
-	const noteMissing = $derived(app.flowStandalone && note.trim() === '');
-	const canStart = $derived(!!selected && !noteMissing);
+	const noteMissing = $derived(isStandalone && note.trim() === '');
 
 	function start() {
 		if (!selected) return;
 		const type = selected.name;
 		const baseExp = selected.exp;
-		if (app.flowStandalone) {
+		if (isStandalone) {
+			if (!note.trim()) return;
 			app.createStandaloneQuest({ type, baseExp, dueDate, note: note.trim() });
 		} else if (app.flowCardId) {
 			app.startQuest(app.flowCardId, app.flowSide, { type, baseExp, dueDate, note: note.trim() });
@@ -43,50 +45,93 @@
 
 {#if app.modals.startQuest}
 	<div
-		class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur"
+		class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] backdrop-blur-sm"
 		role="dialog"
 		aria-modal="true"
 		aria-label="Start Quest"
 	>
 		<div
-			class="flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-lg border-2 shadow-2xl"
-			style="background: {THEME.panel}; border-color: {THEME.border};"
+			class="bg-[#fdfbf7] w-full max-w-lg rounded-lg shadow-2xl border-4 border-[#d4c5a9] max-h-[90vh] overflow-y-auto"
 		>
 			<div
-				class="flex items-center justify-between px-5 py-3"
-				style="background: {THEME.headerBg}; color: {THEME.headerText};"
+				class="bg-[#2c241b] text-[#f5deb3] p-4 border-b border-[#d4c5a9] flex justify-between items-center"
 			>
-				<h2 class="font-serif text-xl font-bold tracking-wide">
-					{app.flowStandalone ? 'New Standalone Task' : 'Start a Quest'}
-				</h2>
-				<button onclick={() => app.closeModals()} aria-label="Close" class="hover:brightness-125">
-					<X size={22} />
-				</button>
+				<h3 class="font-serif font-bold text-xl">
+					{isStandalone ? 'Start Standalone Quest' : 'Start New Quest'}
+				</h3>
+				<button onclick={() => app.closeModals()} aria-label="Close"><X /></button>
 			</div>
+			<div class="p-6">
+				<p class="text-sm text-stone-600 mb-4 font-bold">
+					{#if isStandalone}
+						Create a temporary task separate from the binder.
+					{:else}
+						Client: <span class="text-[#8b4513]">{card?.name}</span> ({activeSide})
+					{/if}
+				</p>
 
-			<div class="overflow-y-auto p-5" style="color: {THEME.text};">
-				<label for="start-type" class="mb-1 block text-sm font-bold">Quest Type</label>
-				<select id="start-type" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={typeId}>
-					{#each questTypes as q (q.id)}
-						<option value={q.id}>{q.name} ({q.exp} XP)</option>
-					{/each}
-				</select>
+				<div class="mb-4">
+					<label for="start-type" class="block text-xs font-bold text-stone-500 uppercase mb-1"
+						>Quest Type</label
+					>
+					<select
+						id="start-type"
+						class="w-full p-2 border border-[#d4c5a9] rounded bg-white"
+						bind:value={typeId}
+					>
+						{#each questTypes as qt (qt.id)}
+							<option value={qt.id}>{qt.name}</option>
+						{/each}
+					</select>
+				</div>
 
-				<label for="start-due" class="mb-1 block text-sm font-bold">Due Date</label>
-				<input id="start-due" type="date" class="mb-4 w-full rounded border px-2 py-1" style={inputStyle} bind:value={dueDate} />
-
-				<label for="start-note" class="mb-1 block text-sm font-bold">
-					Note{#if app.flowStandalone}<span class="text-red-700"> (required)</span>{/if}
-				</label>
-				<textarea id="start-note" rows="3" class="w-full rounded border px-2 py-1" style={inputStyle} bind:value={note}></textarea>
-				{#if noteMissing}
-					<p class="mt-1 text-sm italic text-red-700">A note is required for standalone tasks.</p>
+				{#if isStandalone}
+					<div class="mb-4">
+						<label for="start-standalone-note" class="block text-xs font-bold text-stone-500 uppercase mb-1"
+							>Note (Required)</label
+						>
+						<textarea
+							id="start-standalone-note"
+							class="w-full p-2 border border-[#d4c5a9] rounded bg-white h-24 text-sm"
+							placeholder="Describe this task..."
+							bind:value={note}
+						></textarea>
+					</div>
 				{/if}
-			</div>
 
-			<div class="flex justify-end gap-2 border-t px-5 py-3" style="border-color: {THEME.border};">
-				<RPGButton variant="primary" onclick={() => app.closeModals()}>Cancel</RPGButton>
-				<RPGButton variant="action" disabled={!canStart} onclick={start}>Start Quest</RPGButton>
+				<div class="mb-6">
+					<label for="start-due" class="block text-xs font-bold text-stone-500 uppercase mb-1"
+						>Due Date</label
+					>
+					<input
+						id="start-due"
+						type="date"
+						class="w-full p-2 border border-[#d4c5a9] rounded bg-white"
+						bind:value={dueDate}
+					/>
+				</div>
+
+				<!-- Notes Field -->
+				{#if !isStandalone}
+					<div class="mb-4">
+						<label for="start-note" class="block text-xs font-bold text-stone-500 uppercase mb-1"
+							>Quest Note</label
+						>
+						<textarea
+							id="start-note"
+							class="w-full p-2 border border-[#d4c5a9] rounded bg-white h-20 text-sm"
+							placeholder="Initial notes..."
+							bind:value={note}
+						></textarea>
+					</div>
+				{/if}
+
+				<div class="flex justify-end gap-2">
+					<button onclick={() => app.closeModals()} class="px-4 py-2 text-stone-500 font-bold"
+						>Cancel</button
+					>
+					<RPGButton variant="action" disabled={noteMissing} onclick={start}>Begin Quest</RPGButton>
+				</div>
 			</div>
 		</div>
 	</div>
