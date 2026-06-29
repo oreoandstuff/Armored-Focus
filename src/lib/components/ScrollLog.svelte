@@ -33,51 +33,36 @@
 	});
 </script>
 
-<div
-	class={`mt-4 relative transition-all duration-500 ${isExpanded ? 'fixed inset-4 z-50 flex flex-col' : 'flex-1 flex flex-col min-h-0'}`}
->
+<div class="scroll-region" class:expanded={isExpanded}>
 	<!-- Backdrop for Expanded Mode -->
 	{#if isExpanded}
 		<button
 			type="button"
 			aria-label="Close archive"
-			class="absolute inset-0 bg-black/60 -z-10 rounded-xl"
+			class="backdrop"
 			onclick={() => (isExpanded = false)}
 		></button>
 	{/if}
 
-	<div
-		class={`flex flex-col bg-[#f5e6d3] border-[6px] border-[#8b4513] rounded-lg shadow-2xl relative overflow-hidden ${isExpanded ? 'w-full max-w-4xl mx-auto h-full' : 'h-full'}`}
-	>
+	<div class="scroll" class:expanded={isExpanded}>
 		<!-- Scroll Top Roll Effect -->
-		<div
-			class="h-4 bg-gradient-to-b from-[#5d4037] to-[#8d6e63] border-b border-[#3e2723] shadow-md relative z-10 shrink-0"
-		></div>
+		<div class="wood-top"></div>
 
 		<!-- Header Area -->
-		<div
-			class="bg-[#e6d5c1] p-3 border-b border-[#d4c5a9] flex justify-between items-center shrink-0 shadow-sm"
-		>
-			<h3 class="font-serif font-bold text-[#3e2723] text-lg flex items-center gap-2">
+		<div class="scroll-head">
+			<h3 class="scroll-title">
 				<Scroll size={20} class="text-[#8b4513]" />
 				{isExpanded ? 'Grand Archive of Deeds' : "Today's Scroll"}
 			</h3>
-			<div class="flex gap-2">
+			<div class="head-actions">
 				{#if isExpanded}
-					<input
-						class="px-2 py-1 text-sm bg-white border border-[#d4c5a9] rounded focus:outline-none focus:border-[#8b4513] font-serif"
-						placeholder="Search archives..."
-						bind:value={filterText}
-					/>
+					<input class="search" placeholder="Search archives..." bind:value={filterText} />
 				{/if}
-				<button
-					onclick={() => (isExpanded = !isExpanded)}
-					class="text-[#8b4513] hover:bg-[#d7ccc8] p-1 rounded transition-colors"
-				>
+				<button onclick={() => (isExpanded = !isExpanded)} class="expand-btn">
 					{#if isExpanded}
 						<X size={20} />
 					{:else}
-						<div class="flex items-center gap-1 text-xs font-bold uppercase">
+						<div class="expand-label">
 							<ChevronUp size={16} /> Expand
 						</div>
 					{/if}
@@ -86,33 +71,27 @@
 		</div>
 
 		<!-- Log Content -->
-		<div class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f5e6d3] relative">
+		<div class="entries">
 			<!-- Texture Overlay -->
-			<div
-				class="absolute inset-0 opacity-10 pointer-events-none"
-				style={`background-image: ${textureUrl}`}
-			></div>
+			<div class="dot-texture" style={`background-image: ${textureUrl}`}></div>
 
 			{#if filteredLogs.length === 0}
-				<div class="text-center text-[#a1887f] italic py-4 relative z-10">The scroll is blank...</div>
+				<div class="empty">The scroll is blank...</div>
 			{:else}
 				{#each filteredLogs as log (log.id)}
-					<div class="border-b border-[#d7ccc8] pb-2 last:border-0 relative z-10">
-						<div class="flex justify-between items-start">
-							<div class="font-bold text-[#3e2723] font-serif">{log.clientName}</div>
-							<div class="text-xs text-[#8d6e63] font-mono">{formatDateStandard(log.date)}</div>
+					<div class="entry">
+						<div class="entry-head">
+							<div class="entry-name">{log.clientName}</div>
+							<div class="entry-date">{formatDateStandard(log.date)}</div>
 						</div>
-						<div class="flex justify-between text-sm items-center">
-							<span class="text-[#5d4037] italic">{log.questType}</span>
+						<div class="entry-meta">
+							<span class="entry-type">{log.questType}</span>
 							{#if log.exp > 0}
-								<span
-									class="font-bold text-[#2e7d32] bg-[#c8e6c9] px-1 rounded text-xs border border-[#81c784]"
-									>+{log.exp} XP</span
-								>
+								<span class="xp-badge">+{log.exp} XP</span>
 							{/if}
 						</div>
 						{#if log.note}
-							<div class="text-xs text-[#5d4037] mt-1 bg-[#d7ccc8]/30 p-1 rounded italic">
+							<div class="entry-note">
 								"{log.note}"
 							</div>
 						{/if}
@@ -122,8 +101,93 @@
 		</div>
 
 		<!-- Scroll Bottom Roll Effect -->
-		<div
-			class="h-6 bg-gradient-to-t from-[#5d4037] to-[#8d6e63] border-t border-[#3e2723] shadow-[0_-4px_10px_rgba(0,0,0,0.3)] relative z-10 shrink-0"
-		></div>
+		<div class="wood-bottom"></div>
 	</div>
 </div>
+
+<style>
+	.scroll-region {
+		@apply mt-4 relative flex flex-col flex-1 min-h-0 transition-all duration-500;
+	}
+	.scroll-region.expanded {
+		@apply fixed inset-4 z-50;
+	}
+
+	.backdrop {
+		@apply absolute inset-0 -z-10 rounded-xl bg-black/60;
+	}
+
+	.scroll {
+		@apply relative flex h-full flex-col overflow-hidden rounded-lg shadow-2xl;
+		background-color: #f5e6d3;
+		border: 6px solid #8b4513;
+	}
+	.scroll.expanded {
+		@apply mx-auto w-full max-w-4xl;
+	}
+
+	.wood-top {
+		@apply relative z-10 h-4 shrink-0 border-b border-[#3e2723] shadow-md;
+		background-image: linear-gradient(to bottom, #5d4037, #8d6e63);
+	}
+	.wood-bottom {
+		@apply relative z-10 h-6 shrink-0 border-t border-[#3e2723] shadow-[0_-4px_10px_rgba(0,0,0,0.3)];
+		background-image: linear-gradient(to top, #5d4037, #8d6e63);
+	}
+
+	.scroll-head {
+		@apply flex shrink-0 items-center justify-between border-b border-[#d4c5a9] bg-[#e6d5c1] p-3 shadow-sm;
+	}
+	.scroll-title {
+		@apply flex items-center gap-2 font-serif text-lg font-bold text-[#3e2723];
+	}
+	.head-actions {
+		@apply flex gap-2;
+	}
+	.search {
+		@apply rounded border border-[#d4c5a9] bg-white px-2 py-1 font-serif text-sm focus:border-[#8b4513] focus:outline-none;
+	}
+	.expand-btn {
+		@apply rounded p-1 text-[#8b4513] transition-colors hover:bg-[#d7ccc8];
+	}
+	.expand-label {
+		@apply flex items-center gap-1 text-xs font-bold uppercase;
+	}
+
+	.entries {
+		@apply relative flex-1 space-y-3 overflow-y-auto p-4;
+		background-color: #f5e6d3;
+	}
+	.dot-texture {
+		@apply pointer-events-none absolute inset-0 opacity-10;
+	}
+
+	.empty {
+		@apply relative z-10 py-4 text-center italic text-[#a1887f];
+	}
+
+	.entry {
+		@apply relative z-10 border-b border-[#d7ccc8] pb-2 last:border-0;
+	}
+	.entry-head {
+		@apply flex items-start justify-between;
+	}
+	.entry-name {
+		@apply font-serif font-bold text-[#3e2723];
+	}
+	.entry-date {
+		@apply font-mono text-xs text-[#8d6e63];
+	}
+	.entry-meta {
+		@apply flex items-center justify-between text-sm;
+	}
+	.entry-type {
+		@apply italic text-[#5d4037];
+	}
+	.xp-badge {
+		@apply rounded border border-[#81c784] bg-[#c8e6c9] px-1 text-xs font-bold text-[#2e7d32];
+	}
+	.entry-note {
+		@apply mt-1 rounded bg-[#d7ccc8]/30 p-1 text-xs italic text-[#5d4037];
+	}
+</style>

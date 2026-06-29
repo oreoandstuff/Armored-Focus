@@ -10,26 +10,44 @@
 	const label = $derived(days <= 0 ? 'CONVERTS TOMORROW' : `${days} Days Left`);
 </script>
 
-<div class="w-full">
-	<div class="mb-1 flex items-center justify-between">
-		<span class="font-serif text-xs font-bold tracking-wide text-blue-200">Cooldown Timer</span>
-		<span class="font-mono text-xs text-pink-200">{label}</span>
+<div class="cooldown">
+	<div class="cooldown-header">
+		<span class="cooldown-label">Cooldown Timer</span>
+		<span class="cooldown-value">{label}</span>
 	</div>
 
-	<div class="relative h-4 w-full overflow-hidden rounded-full border border-black/30 bg-black/30">
+	<div class="cooldown-track">
 		<!-- Fill anchored to the right -->
-		<div
-			class="absolute inset-y-0 right-0 rounded-full"
-			style="width: {fillPct}%; background: linear-gradient(to left, #ec4899, #3b82f6);"
-		></div>
+		<div class="cooldown-fill" style="width: {fillPct}%"></div>
 
 		<!-- Pulsing "Converts Tomorrow" overlay when exactly one day remains -->
 		{#if days === 1}
-			<div
-				class="absolute inset-0 flex items-center justify-center animate-pulse text-[10px] font-bold uppercase tracking-wider text-white drop-shadow"
-			>
-				Converts Tomorrow
-			</div>
+			<div class="cooldown-overlay">Converts Tomorrow</div>
 		{/if}
 	</div>
 </div>
+
+<style>
+	.cooldown {
+		@apply w-full;
+	}
+	.cooldown-header {
+		@apply mb-1 flex items-center justify-between;
+	}
+	.cooldown-label {
+		@apply font-serif text-xs font-bold tracking-wide text-blue-200;
+	}
+	.cooldown-value {
+		@apply font-mono text-xs text-pink-200;
+	}
+	.cooldown-track {
+		@apply relative h-4 w-full overflow-hidden rounded-full border border-black/30 bg-black/30;
+	}
+	.cooldown-fill {
+		@apply absolute inset-y-0 right-0 rounded-full;
+		background: linear-gradient(to left, #ec4899, #3b82f6);
+	}
+	.cooldown-overlay {
+		@apply absolute inset-0 flex animate-pulse items-center justify-center text-[10px] font-bold uppercase tracking-wider text-white drop-shadow;
+	}
+</style>

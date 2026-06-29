@@ -36,44 +36,72 @@
 	}
 </script>
 
-<div class="mb-8 bg-[#fdfbf7] border-2 border-[#d4c5a9] rounded-xl overflow-hidden shadow-md">
-	<div class="bg-[#2c241b] text-[#f5deb3] p-3 flex justify-between items-center">
-		<h3 class="font-serif font-bold text-lg">{title}</h3>
-		<button
-			onclick={() => onAdd?.(dataKey)}
-			class="text-xs bg-[#eebb4d] text-[#2c241b] px-2 py-1 rounded font-bold hover:brightness-110 flex items-center gap-1"
-		>
+<div class="section">
+	<div class="section-head">
+		<h3 class="section-title">{title}</h3>
+		<button onclick={() => onAdd?.(dataKey)} class="add-btn">
 			<Plus size={12} /> Add
 		</button>
 	</div>
-	<div class="p-4">
+	<div class="section-body">
 		{#each rules as item (item.id)}
-			<div class="flex items-center gap-4 mb-2 last:mb-0">
+			<div class="rule-row">
 				<input
-					class="flex-1 border-b border-[#d4c5a9] bg-transparent py-1 px-2 focus:outline-none focus:border-[#8b4513]"
+					class="name-input"
 					value={item.name}
 					oninput={(e) => onUpdate?.(item.id, 'name', e.currentTarget.value)}
 				/>
 				{#if columns.includes('Value')}
-					<div class="flex items-center w-32">
+					<div class="value-cell">
 						<input
 							type="number"
-							class="w-full border border-[#d4c5a9] rounded py-1 px-2 text-right"
+							class="value-input"
 							value={numValue(item)}
 							oninput={(e) => onUpdate?.(item.id, valueField, parseFloat(e.currentTarget.value))}
 						/>
-						<span class="ml-2 text-xs font-bold text-stone-500 w-8"
-							>{unit || (valueField === 'exp' ? 'Exp' : '%')}</span
-						>
+						<span class="unit">{unit || (valueField === 'exp' ? 'Exp' : '%')}</span>
 					</div>
 				{/if}
-				<button
-					onclick={() => onDelete?.(item.id)}
-					class="text-stone-400 hover:text-red-700"
-				>
+				<button onclick={() => onDelete?.(item.id)} class="del-btn">
 					<Trash2 size={16} />
 				</button>
 			</div>
 		{/each}
 	</div>
 </div>
+
+<style>
+	.section {
+		@apply mb-8 bg-[#fdfbf7] border-2 border-[#d4c5a9] rounded-xl overflow-hidden shadow-md;
+	}
+	.section-head {
+		@apply bg-[#2c241b] text-[#f5deb3] p-3 flex justify-between items-center;
+	}
+	.section-title {
+		@apply font-serif font-bold text-lg;
+	}
+	.add-btn {
+		@apply text-xs bg-[#eebb4d] text-[#2c241b] px-2 py-1 rounded font-bold hover:brightness-110 flex items-center gap-1;
+	}
+	.section-body {
+		@apply p-4;
+	}
+	.rule-row {
+		@apply flex items-center gap-4 mb-2 last:mb-0;
+	}
+	.name-input {
+		@apply flex-1 border-b border-[#d4c5a9] bg-transparent py-1 px-2 focus:outline-none focus:border-[#8b4513];
+	}
+	.value-cell {
+		@apply flex items-center w-32;
+	}
+	.value-input {
+		@apply w-full border border-[#d4c5a9] rounded py-1 px-2 text-right;
+	}
+	.unit {
+		@apply ml-2 text-xs font-bold text-stone-500 w-8;
+	}
+	.del-btn {
+		@apply text-stone-400 hover:text-red-700;
+	}
+</style>
