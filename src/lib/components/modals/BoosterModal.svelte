@@ -6,6 +6,7 @@
 	import { X, Database, FileText, FilePlus, Upload } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
 	import { BOOSTER_COLUMN_TYPES } from '$lib/core/rules';
+	import Modal from '$lib/components/Modal.svelte';
 	import RPGButton from '$lib/components/RPGButton.svelte';
 
 	const DEFAULTS = ['Name', 'Phone', 'Address'];
@@ -57,116 +58,179 @@
 	}
 </script>
 
-{#if app.modals.boosterPack}
-	<div
-		class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Open Booster Pack"
-	>
-		<div
-			class="bg-[#fdfbf7] rounded-lg shadow-xl border-4 border-[#d4c5a9] w-[90%] max-w-6xl flex flex-col max-h-[90vh]"
-		>
-			<div
-				class="bg-[#2c241b] text-[#f5deb3] p-4 border-b border-[#d4c5a9] flex justify-between items-center"
-			>
-				<h3 class="font-serif font-bold text-xl">Open Booster Pack (Import)</h3>
-				<button onclick={() => app.closeModals()} class="hover:text-white" aria-label="Close"><X /></button>
-			</div>
+<Modal open={app.modals.boosterPack} ariaLabel="Open Booster Pack" blur={false}>
+	<div class="panel">
+		<header class="panel-header">
+			<h3 class="panel-title">Open Booster Pack (Import)</h3>
+			<button class="close-btn" onclick={() => app.closeModals()} aria-label="Close"><X /></button>
+		</header>
 
-			<div class="p-6 overflow-y-auto flex-1">
-				<!-- Section 1: Define Structure -->
-				<div class="mb-6 border-b border-[#d4c5a9] pb-6">
-					<h4 class="font-bold text-[#8b4513] mb-4 flex items-center gap-2">
-						<Database size={18} /> 1. Define CSV Structure
-					</h4>
+		<div class="panel-body">
+			<!-- Section 1: Define Structure -->
+			<div class="section-structure">
+				<h4 class="section-title">
+					<Database size={18} /> 1. Define CSV Structure
+				</h4>
 
-					<div class="flex items-center gap-4 mb-4">
-						<label class="text-sm font-bold text-stone-600" for="booster-colcount"
-							>How many columns in your file?</label
-						>
-						<input
-							id="booster-colcount"
-							type="number"
-							min="1"
-							max="20"
-							class="w-16 p-2 border border-[#d4c5a9] rounded text-center font-bold"
-							value={colCount}
-							oninput={(e) => updateColCount(e.currentTarget.value)}
-						/>
-					</div>
-
-					<div class="grid grid-cols-6 gap-4">
-						{#each columns as _, idx (idx)}
-							<div class="bg-white p-2 rounded border border-[#d4c5a9]">
-								<div class="text-[10px] font-bold text-stone-400 uppercase mb-1">Column {idx + 1}</div>
-								<select
-									class="w-full p-1 text-sm border-none focus:ring-0 bg-transparent font-bold text-[#2c241b]"
-									aria-label="Column {idx + 1} type"
-									bind:value={columns[idx]}
-								>
-									{#each BOOSTER_COLUMN_TYPES as type}
-										<option value={type}>{type === 'Ignore' ? 'Ignore Column' : type}</option>
-									{/each}
-								</select>
-							</div>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Section 2: Paste Data -->
-				<div>
-					<h4 class="font-bold text-[#8b4513] mb-2 flex items-center gap-2">
-						<FileText size={18} /> 2. Paste CSV Data
-					</h4>
-					<p class="text-xs text-stone-500 mb-2">Drag &amp; Drop file below.</p>
-
-					<!-- Drag & Drop Zone -->
-					<div
-						class="border-2 border-dashed border-[#d4c5a9] bg-stone-50 rounded-lg p-6 mb-3 text-center cursor-pointer hover:bg-stone-100 transition-colors"
-						role="button"
-						tabindex="0"
-						onclick={() => fileInput?.click()}
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								e.preventDefault();
-								fileInput?.click();
-							}
-						}}
-						ondrop={handleDrop}
-						ondragover={(e) => e.preventDefault()}
+				<div class="colcount-row">
+					<label class="colcount-label" for="booster-colcount"
+						>How many columns in your file?</label
 					>
-						<input
-							type="file"
-							bind:this={fileInput}
-							class="hidden"
-							accept=".csv,.txt"
-							onchange={handleFileUpload}
-						/>
-						<FilePlus size={32} class="mx-auto text-stone-400 mb-2" />
-						<p class="text-sm font-bold text-stone-600">Drag &amp; Drop CSV file here</p>
-						<p class="text-xs text-stone-400">or click to browse computer</p>
-					</div>
+					<input
+						id="booster-colcount"
+						type="number"
+						min="1"
+						max="20"
+						class="colcount-input"
+						value={colCount}
+						oninput={(e) => updateColCount(e.currentTarget.value)}
+					/>
+				</div>
 
-					<textarea
-						class="w-full h-32 border border-[#d4c5a9] p-3 text-xs font-mono bg-white rounded focus:border-[#8b4513] focus:outline-none resize-none shadow-inner"
-						placeholder="Example Row: Andrew Leui, 555-0199, 123 Maple Dr"
-						bind:value={rawText}
-					></textarea>
+				<div class="col-grid">
+					{#each columns as _, idx (idx)}
+						<div class="col-map">
+							<div class="col-map-label">Column {idx + 1}</div>
+							<select
+								class="col-map-select"
+								aria-label="Column {idx + 1} type"
+								bind:value={columns[idx]}
+							>
+								{#each BOOSTER_COLUMN_TYPES as type}
+									<option value={type}>{type === 'Ignore' ? 'Ignore Column' : type}</option>
+								{/each}
+							</select>
+						</div>
+					{/each}
 				</div>
 			</div>
 
-			<div class="p-4 bg-[#e8e4d9] border-t border-[#d4c5a9] flex justify-end gap-3">
-				<button
-					onclick={() => app.closeModals()}
-					class="px-4 py-2 text-stone-600 font-bold hover:text-stone-800"
+			<!-- Section 2: Paste Data -->
+			<div>
+				<h4 class="section-title tight">
+					<FileText size={18} /> 2. Paste CSV Data
+				</h4>
+				<p class="paste-hint">Drag &amp; Drop file below.</p>
+
+				<!-- Drag & Drop Zone -->
+				<div
+					class="dropzone"
+					role="button"
+					tabindex="0"
+					onclick={() => fileInput?.click()}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							fileInput?.click();
+						}
+					}}
+					ondrop={handleDrop}
+					ondragover={(e) => e.preventDefault()}
 				>
-					Cancel
-				</button>
-				<RPGButton variant="action" onclick={processBoosterImport} disabled={!rawText.trim()}>
-					<Upload size={16} class="inline mr-2" /> Import Data
-				</RPGButton>
+					<input
+						type="file"
+						bind:this={fileInput}
+						class="file-input"
+						accept=".csv,.txt"
+						onchange={handleFileUpload}
+					/>
+					<FilePlus size={32} class="mx-auto text-stone-400 mb-2" />
+					<p class="dropzone-title">Drag &amp; Drop CSV file here</p>
+					<p class="dropzone-sub">or click to browse computer</p>
+				</div>
+
+				<textarea
+					class="csv-input"
+					placeholder="Example Row: Andrew Leui, 555-0199, 123 Maple Dr"
+					bind:value={rawText}
+				></textarea>
 			</div>
 		</div>
+
+		<div class="footer">
+			<button class="cancel-btn" onclick={() => app.closeModals()}> Cancel </button>
+			<RPGButton variant="action" onclick={processBoosterImport} disabled={!rawText.trim()}>
+				<Upload size={16} class="inline mr-2" /> Import Data
+			</RPGButton>
+		</div>
 	</div>
-{/if}
+</Modal>
+
+<style>
+	.panel {
+		@apply flex max-h-[90vh] w-[90%] max-w-6xl flex-col rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-xl;
+	}
+	.panel-header {
+		@apply flex items-center justify-between border-b border-[#d4c5a9] bg-[#2c241b] p-4 text-[#f5deb3];
+	}
+	.panel-title {
+		@apply font-serif text-xl font-bold;
+	}
+	.close-btn {
+		@apply hover:text-white;
+	}
+	.panel-body {
+		@apply flex-1 overflow-y-auto p-6;
+	}
+
+	.section-structure {
+		@apply mb-6 border-b border-[#d4c5a9] pb-6;
+	}
+	.section-title {
+		@apply mb-4 flex items-center gap-2 font-bold text-[#8b4513];
+	}
+	.section-title.tight {
+		@apply mb-2;
+	}
+
+	.colcount-row {
+		@apply mb-4 flex items-center gap-4;
+	}
+	.colcount-label {
+		@apply text-sm font-bold text-stone-600;
+	}
+	.colcount-input {
+		@apply w-16 rounded border border-[#d4c5a9] p-2 text-center font-bold;
+	}
+
+	.col-grid {
+		@apply grid grid-cols-6 gap-4;
+	}
+	.col-map {
+		@apply rounded border border-[#d4c5a9] bg-white p-2;
+	}
+	.col-map-label {
+		@apply mb-1 text-[10px] font-bold uppercase text-stone-400;
+	}
+	.col-map-select {
+		@apply w-full border-none bg-transparent p-1 text-sm font-bold text-[#2c241b] focus:ring-0;
+	}
+
+	.paste-hint {
+		@apply mb-2 text-xs text-stone-500;
+	}
+
+	.dropzone {
+		@apply mb-3 cursor-pointer rounded-lg border-2 border-dashed border-[#d4c5a9] bg-stone-50 p-6 text-center transition-colors hover:bg-stone-100;
+	}
+	.file-input {
+		@apply hidden;
+	}
+	.dropzone-title {
+		@apply text-sm font-bold text-stone-600;
+	}
+	.dropzone-sub {
+		@apply text-xs text-stone-400;
+	}
+
+	.csv-input {
+		@apply h-32 w-full resize-none rounded border border-[#d4c5a9] bg-white p-3 font-mono text-xs shadow-inner focus:border-[#8b4513] focus:outline-none;
+	}
+
+	.footer {
+		@apply flex justify-end gap-3 border-t border-[#d4c5a9] bg-[#e8e4d9] p-4;
+	}
+	.cancel-btn {
+		@apply px-4 py-2 font-bold text-stone-600 hover:text-stone-800;
+	}
+</style>

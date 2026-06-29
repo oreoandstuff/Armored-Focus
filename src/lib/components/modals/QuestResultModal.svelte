@@ -5,6 +5,7 @@
 	import { X, CheckCircle, ArrowRight, DollarSign } from '@lucide/svelte';
 	import { app } from '$lib/state.svelte';
 	import { todayISO, tomorrowISO, addDays } from '$lib/core/dates';
+	import Modal from '$lib/components/Modal.svelte';
 	import RPGButton from '$lib/components/RPGButton.svelte';
 
 	let completionTypeId = $state('');
@@ -60,148 +61,175 @@
 	}
 </script>
 
-{#if app.modals.questResult}
-	<div
-		class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] backdrop-blur-sm"
-		role="dialog"
-		aria-modal="true"
-		aria-label="Quest Result"
-	>
-		<div
-			class="bg-[#fdfbf7] w-full max-w-lg rounded-lg shadow-2xl border-4 border-[#d4c5a9] overflow-hidden"
-		>
-			<div
-				class="p-4 border-b border-[#d4c5a9] flex justify-between items-center {isContinue
-					? 'bg-[#1e3a8a] text-white'
-					: 'bg-[#14532d] text-white'}"
-			>
-				<h3 class="font-serif font-bold text-xl flex items-center gap-2">
-					{#if isContinue}
-						<ArrowRight size={24} />
-					{:else}
-						<CheckCircle size={24} />
-					{/if}
-					{isContinue ? 'Quest Progression' : 'Quest Completion'}
-				</h3>
-				<button onclick={() => app.closeModals()} aria-label="Close"><X /></button>
+<Modal open={app.modals.questResult} ariaLabel="Quest Result">
+	<div class="panel">
+		<div class="panel-header" class:continue={isContinue} class:complete={!isContinue}>
+			<h3 class="panel-title">
+				{#if isContinue}
+					<ArrowRight size={24} />
+				{:else}
+					<CheckCircle size={24} />
+				{/if}
+				{isContinue ? 'Quest Progression' : 'Quest Completion'}
+			</h3>
+			<button onclick={() => app.closeModals()} aria-label="Close"><X /></button>
+		</div>
+
+		<div class="panel-body">
+			<!-- 1. Completion Type -->
+			<div>
+				<label for="quest-completion-type" class="field-label">Result / Completion Type</label>
+				<select id="quest-completion-type" class="completion-select" bind:value={completionTypeId}>
+					{#each completionTypes as ct (ct.id)}
+						<option value={ct.id}>{ct.name} (+{ct.bonusPercent}%)</option>
+					{/each}
+				</select>
 			</div>
 
-			<div class="p-6 space-y-6">
-				<!-- 1. Completion Type -->
-				<div>
-					<label
-						for="quest-completion-type"
-						class="block text-xs font-bold text-stone-500 uppercase mb-1">Result / Completion Type</label
-					>
-					<select
-						id="quest-completion-type"
-						class="w-full p-2 border-2 border-[#d4c5a9] rounded bg-white font-bold text-[#2c241b]"
-						bind:value={completionTypeId}
-					>
-						{#each completionTypes as ct (ct.id)}
-							<option value={ct.id}>{ct.name} (+{ct.bonusPercent}%)</option>
-						{/each}
-					</select>
+			<!-- 2. Commission -->
+			<div>
+				<label for="quest-commission" class="field-label">Commission Earned</label>
+				<div class="commission">
+					<DollarSign
+						class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600"
+						size={16}
+					/>
+					<input
+						id="quest-commission"
+						type="number"
+						class="commission-input"
+						bind:value={commission}
+					/>
 				</div>
+			</div>
 
-				<!-- 2. Commission -->
-				<div>
-					<label for="quest-commission" class="block text-xs font-bold text-stone-500 uppercase mb-1"
-						>Commission Earned</label
-					>
-					<div class="relative">
-						<DollarSign
-							class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-600"
-							size={16}
-						/>
-						<input
-							id="quest-commission"
-							type="number"
-							class="w-full pl-9 p-2 border-2 border-[#d4c5a9] rounded bg-white font-mono"
-							bind:value={commission}
-						/>
-					</div>
-				</div>
+			<!-- 3. Continue Logic (Only if Continuing) -->
+			{#if isContinue}
+				<div class="continue-box">
+					<h4 class="continue-title">Next Step</h4>
 
-				<!-- 3. Continue Logic (Only if Continuing) -->
-				{#if isContinue}
-					<div class="bg-blue-50 p-4 rounded border-2 border-blue-200 space-y-4">
-						<h4 class="font-bold text-blue-900 text-sm border-b border-blue-200 pb-1">Next Step</h4>
+					<label class="cooldown-check">
+						<input type="checkbox" bind:checked={isCooldown} />
+						Put into Cooldown?
+					</label>
 
-						<label class="flex items-center gap-2 font-bold text-blue-800">
-							<input type="checkbox" bind:checked={isCooldown} />
-							Put into Cooldown?
-						</label>
-
-						{#if !isCooldown}
-							<div>
-								<label
-									for="quest-next-type"
-									class="block text-xs font-bold text-blue-500 uppercase mb-1">Next Quest Type</label
-								>
-								<select
-									id="quest-next-type"
-									class="w-full p-2 border border-blue-300 rounded bg-white"
-									bind:value={nextTypeId}
-								>
-									{#if card?.isStandalone}
-										<optgroup label="Standalone Quests">
-											{#each app.rules.standaloneQuestTypes ?? [] as qt (qt.id)}
-												<option value={qt.id}>{qt.name}</option>
-											{/each}
-										</optgroup>
-									{:else}
-										<optgroup label="Card Quests">
-											{#each app.rules.cardQuestTypes ?? [] as qt (qt.id)}
-												<option value={qt.id}>{qt.name}</option>
-											{/each}
-										</optgroup>
-									{/if}
-								</select>
-							</div>
-						{/if}
-
+					{#if !isCooldown}
 						<div>
-							<label for="quest-next-due" class="block text-xs font-bold text-blue-500 uppercase mb-1"
-								>New Due Date</label
-							>
-							<input
-								id="quest-next-due"
-								type="date"
-								class="w-full p-2 border border-blue-300 rounded bg-white"
-								value={isCooldown ? cooldownDueDate : nextDueDate}
-								oninput={(e) => {
-									if (isCooldown) cooldownDueDate = e.currentTarget.value;
-									else nextDueDate = e.currentTarget.value;
-								}}
-							/>
+							<label for="quest-next-type" class="field-label-blue">Next Quest Type</label>
+							<select id="quest-next-type" class="input-blue" bind:value={nextTypeId}>
+								{#if card?.isStandalone}
+									<optgroup label="Standalone Quests">
+										{#each app.rules.standaloneQuestTypes ?? [] as qt (qt.id)}
+											<option value={qt.id}>{qt.name}</option>
+										{/each}
+									</optgroup>
+								{:else}
+									<optgroup label="Card Quests">
+										{#each app.rules.cardQuestTypes ?? [] as qt (qt.id)}
+											<option value={qt.id}>{qt.name}</option>
+										{/each}
+									</optgroup>
+								{/if}
+							</select>
 						</div>
+					{/if}
+
+					<div>
+						<label for="quest-next-due" class="field-label-blue">New Due Date</label>
+						<input
+							id="quest-next-due"
+							type="date"
+							class="input-blue"
+							value={isCooldown ? cooldownDueDate : nextDueDate}
+							oninput={(e) => {
+								if (isCooldown) cooldownDueDate = e.currentTarget.value;
+								else nextDueDate = e.currentTarget.value;
+							}}
+						/>
 					</div>
-				{/if}
-
-				<!-- Notes Field -->
-				<div>
-					<label for="quest-note" class="block text-xs font-bold text-stone-500 uppercase mb-1"
-						>Quest Note</label
-					>
-					<textarea
-						id="quest-note"
-						class="w-full p-2 border border-[#d4c5a9] rounded bg-white h-20 text-sm"
-						placeholder="Describe the outcome..."
-						bind:value={note}
-					></textarea>
 				</div>
+			{/if}
 
-				<div class="flex justify-end gap-2 pt-4 border-t border-[#d4c5a9]">
-					<button
-						onclick={() => app.closeModals()}
-						class="px-4 py-2 text-stone-500 font-bold hover:text-stone-800">Cancel</button
-					>
-					<RPGButton variant={isContinue ? 'primary' : 'action'} onclick={submit}>
-						{isContinue ? 'Log Progress' : 'Complete Quest'}
-					</RPGButton>
-				</div>
+			<!-- Notes Field -->
+			<div>
+				<label for="quest-note" class="field-label">Quest Note</label>
+				<textarea
+					id="quest-note"
+					class="note-input"
+					placeholder="Describe the outcome..."
+					bind:value={note}
+				></textarea>
+			</div>
+
+			<div class="footer">
+				<button onclick={() => app.closeModals()} class="cancel-btn">Cancel</button>
+				<RPGButton variant={isContinue ? 'primary' : 'action'} onclick={submit}>
+					{isContinue ? 'Log Progress' : 'Complete Quest'}
+				</RPGButton>
 			</div>
 		</div>
 	</div>
-{/if}
+</Modal>
+
+<style>
+	.panel {
+		@apply w-full max-w-lg overflow-hidden rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] shadow-2xl;
+	}
+	.panel-header {
+		@apply flex items-center justify-between border-b border-[#d4c5a9] p-4 text-white;
+	}
+	.panel-header.complete {
+		@apply bg-[#14532d];
+	}
+	.panel-header.continue {
+		@apply bg-[#1e3a8a];
+	}
+	.panel-title {
+		@apply flex items-center gap-2 font-serif text-xl font-bold;
+	}
+	.panel-body {
+		@apply space-y-6 p-6;
+	}
+
+	.field-label {
+		@apply mb-1 block text-xs font-bold uppercase text-stone-500;
+	}
+	.field-label-blue {
+		@apply mb-1 block text-xs font-bold uppercase text-blue-500;
+	}
+
+	.completion-select {
+		@apply w-full rounded border-2 border-[#d4c5a9] bg-white p-2 font-bold text-[#2c241b];
+	}
+
+	.commission {
+		@apply relative;
+	}
+	.commission-input {
+		@apply w-full rounded border-2 border-[#d4c5a9] bg-white p-2 pl-9 font-mono;
+	}
+
+	.continue-box {
+		@apply space-y-4 rounded border-2 border-blue-200 bg-blue-50 p-4;
+	}
+	.continue-title {
+		@apply border-b border-blue-200 pb-1 text-sm font-bold text-blue-900;
+	}
+	.cooldown-check {
+		@apply flex items-center gap-2 font-bold text-blue-800;
+	}
+	.input-blue {
+		@apply w-full rounded border border-blue-300 bg-white p-2;
+	}
+
+	.note-input {
+		@apply h-20 w-full rounded border border-[#d4c5a9] bg-white p-2 text-sm;
+	}
+
+	.footer {
+		@apply flex justify-end gap-2 border-t border-[#d4c5a9] pt-4;
+	}
+	.cancel-btn {
+		@apply px-4 py-2 font-bold text-stone-500 hover:text-stone-800;
+	}
+</style>

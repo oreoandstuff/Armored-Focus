@@ -3,6 +3,7 @@
 	// target (app.flowCardId). The source is combined in and then removed.
 	// Markup matches the React prototype's "Merge Cards" modal 1:1.
 	import { app } from '$lib/state.svelte';
+	import Modal from '$lib/components/Modal.svelte';
 	import RPGButton from '$lib/components/RPGButton.svelte';
 
 	let sourceId = $state('');
@@ -26,47 +27,66 @@
 	}
 </script>
 
-{#if app.modals.mergeCard}
-	<div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
-		<div class="bg-[#fdfbf7] rounded-lg shadow-xl border-4 border-[#d4c5a9] w-[90%] max-w-lg p-6">
-			<h3 class="font-serif font-bold text-xl mb-4 text-[#2c241b]">Merge Cards</h3>
-			<p class="text-sm text-stone-600 mb-4">
-				Select a card to merge INTO <span class="font-bold text-[#8b4513]"
-					>{target?.name || 'Current Card'}</span
-				>. The selected card below will be deleted, and its data (Logs, Notes, Quests) will be moved
-				to the current card.
-			</p>
+<Modal open={app.modals.mergeCard} ariaLabel="Merge Cards" blur={false}>
+	<div class="panel">
+		<h3 class="title">Merge Cards</h3>
+		<p class="warning">
+			Select a card to merge INTO <span class="target-name">{target?.name || 'Current Card'}</span>.
+			The selected card below will be deleted, and its data (Logs, Notes, Quests) will be moved to the
+			current card.
+		</p>
 
-			<div class="mb-4">
-				<label for="merge-source" class="block text-xs font-bold text-stone-500 uppercase mb-1"
-					>Select Card to Absorb</label
-				>
-				<select
-					id="merge-source"
-					class="w-full p-2 border border-[#d4c5a9] rounded bg-white"
-					bind:value={sourceId}
-				>
-					<option value="">-- Select Card --</option>
-					{#each candidates as c (c.id)}
-						<option value={c.id}>
-							{c.name}
-							{c.businessSide?.businessName ? `(${c.businessSide.businessName})` : ''}
-						</option>
-					{/each}
-				</select>
-			</div>
+		<div class="field">
+			<label for="merge-source" class="field-label">Select Card to Absorb</label>
+			<select id="merge-source" class="select" bind:value={sourceId}>
+				<option value="">-- Select Card --</option>
+				{#each candidates as c (c.id)}
+					<option value={c.id}>
+						{c.name}
+						{c.businessSide?.businessName ? `(${c.businessSide.businessName})` : ''}
+					</option>
+				{/each}
+			</select>
+		</div>
 
-			<div class="flex justify-end gap-3 pt-4 border-t border-[#d4c5a9]">
-				<button
-					onclick={() => app.closeModals()}
-					class="px-4 py-2 text-stone-600 font-bold hover:text-stone-800"
-				>
-					Cancel
-				</button>
-				<RPGButton variant="danger" onclick={merge} disabled={!sourceId}>
-					Merge & Delete Source
-				</RPGButton>
-			</div>
+		<div class="footer">
+			<button onclick={() => app.closeModals()} class="cancel-btn"> Cancel </button>
+			<RPGButton variant="danger" onclick={merge} disabled={!sourceId}>
+				Merge & Delete Source
+			</RPGButton>
 		</div>
 	</div>
-{/if}
+</Modal>
+
+<style>
+	.panel {
+		@apply w-[90%] max-w-lg rounded-lg border-4 border-[#d4c5a9] bg-[#fdfbf7] p-6 shadow-xl;
+	}
+	.title {
+		@apply mb-4 font-serif text-xl font-bold text-[#2c241b];
+	}
+	.warning {
+		@apply mb-4 text-sm text-stone-600;
+	}
+	.target-name {
+		@apply font-bold text-[#8b4513];
+	}
+	.field {
+		@apply mb-4;
+	}
+	.field-label {
+		@apply mb-1 block text-xs font-bold uppercase text-stone-500;
+	}
+	.select {
+		@apply w-full rounded border border-[#d4c5a9] bg-white p-2;
+	}
+	.footer {
+		@apply flex justify-end gap-3 border-t border-[#d4c5a9] pt-4;
+	}
+	.cancel-btn {
+		@apply px-4 py-2 font-bold text-stone-600;
+	}
+	.cancel-btn:hover {
+		@apply text-stone-800;
+	}
+</style>
