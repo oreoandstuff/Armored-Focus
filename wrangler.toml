@@ -6,6 +6,5 @@ pages_build_output_dir = ".svelte-kit/cloudflare"
 [[d1_databases]]
 binding = "DB"
 database_name = "armored_focus"
-# Replace with the id printed by `wrangler d1 create armored_focus`
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "3da82b99-50ff-41ed-821a-613e01e1d6d1"
 migrations_dir = "migrations"
