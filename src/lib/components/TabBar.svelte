@@ -46,7 +46,7 @@
 </script>
 
 <div
-	class="flex justify-center p-0 sticky top-0 z-50 shadow-lg border-b-4 transition-colors duration-500 shrink-0 {headerBg}"
+	class="flex justify-center px-0 pt-2 sticky top-0 z-50 shadow-lg border-b-4 transition-colors duration-500 shrink-0 {headerBg}"
 >
 	{#each TABS as tab (tab)}
 		<button

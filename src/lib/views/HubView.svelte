@@ -134,7 +134,7 @@
 			</button>
 			<button
 				onclick={() => app.openModal('drawCard')}
-				class="w-full py-3 rounded-xl bg-gradient-to-b from-[#faeebf] via-[#eebb4d] to-[#aa7e22] text-[#3e2723] border-4 border-[#5c3a1e] text-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
+				class="w-full py-4 rounded-xl bg-gradient-to-b from-[#faeebf] via-[#eebb4d] to-[#aa7e22] text-[#3e2723] border-4 border-[#5c3a1e] text-lg hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 group {METALLIC_SHADOW} {METALLIC_FONT}"
 			>
 				<div
 					class="p-1.5 bg-[#5c3a1e] rounded-full border border-[#faeebf] group-hover:scale-110 transition-transform shadow-inner text-[#faeebf]"
