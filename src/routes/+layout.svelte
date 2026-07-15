@@ -49,7 +49,14 @@
 
 <style lang="postcss">
 	.app-shell {
-		@apply flex h-screen flex-col font-sans;
+		@apply flex flex-col font-sans;
+		/* Dynamic viewport height: `dvh` tracks the mobile address bar so the
+		   shell matches the *visible* area, not the collapsed-toolbar 100vh.
+		   Without this the inner scroller's bottom sits behind the browser
+		   chrome, forcing a second "page" scroll to reach the true bottom. */
+		height: 100vh; /* fallback for browsers without dvh */
+		height: 100dvh;
+		overflow: hidden; /* only the inner .view-container scrolls */
 	}
 	.view-bg {
 		@apply relative w-full flex-1 overflow-hidden;
